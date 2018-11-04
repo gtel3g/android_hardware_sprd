@@ -29,11 +29,13 @@ LOCAL_SHARED_LIBRARIES := \
 	libstagefrighthw \
 	libmemoryheapion \
 	libutils \
+	liblog \
 	libui \
 	libdl \
 	liblog
 
 LOCAL_MODULE := libstagefright_sprd_h264enc
+LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_TAGS := optional
 
 ifeq ($(strip $(TARGET_BOARD_CAMERA_ANTI_SHAKE)),true)

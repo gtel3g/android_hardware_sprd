@@ -3,13 +3,15 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-	SPRDAVCEncoder.cpp
+	SPRDVPXDecoder.cpp
 
 LOCAL_C_INCLUDES := \
 	frameworks/av/media/libstagefright/include \
 	frameworks/native/include/media/openmax \
 	frameworks/native/include/media/hardware \
-	frameworks/native/include \
+	frameworks/native/include/ui \
+	frameworks/native/include/utils \
+	frameworks/native/include/media/hardware \
 	$(LOCAL_PATH)/../../../../../gralloc/$(TARGET_BOARD_PLATFORM) \
 	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/video
 
@@ -20,8 +22,6 @@ LOCAL_CFLAGS := \
 	-DOSCL_EXPORT_REF= \
 	-DOSCL_IMPORT_REF=
 
-LOCAL_LDFLAGS += -Wl,--no-warn-shared-textrel
-
 LOCAL_ARM_MODE := arm
 
 LOCAL_SHARED_LIBRARIES := \
@@ -30,16 +30,18 @@ LOCAL_SHARED_LIBRARIES := \
 	libstagefright_foundation \
 	libstagefrighthw \
 	libmemoryheapion \
+	libmedia \
 	libutils \
+	liblog \
 	libui \
 	libdl \
 	liblog
 
-LOCAL_MODULE := libstagefright_sprd_h264enc
-LOCAL_MODULE_TAGS := optional
+LOCAL_STATIC_LIBRARIES := \
+	libcolorformat_switcher
 
-ifeq ($(strip $(TARGET_BOARD_CAMERA_ANTI_SHAKE)),true)
-LOCAL_CFLAGS += -DANTI_SHAKE
-endif
+LOCAL_MODULE := libstagefright_sprd_vpxdec
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)

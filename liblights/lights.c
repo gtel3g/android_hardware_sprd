@@ -15,7 +15,7 @@
  */
 
 //#define LOG_NDEBUG 0
-#define LOG_TAG "LIGHTS"
+#define LOG_TAG "lights"
 
 #include <cutils/log.h>
 #include <stdint.h>
@@ -31,9 +31,7 @@ static pthread_once_t g_init = PTHREAD_ONCE_INIT;
 static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 
 char const *const LIGHT_BACKLIGHT = "/sys/class/backlight/panel/brightness";
-#ifndef NON_BACKLIT_KEYS
 char const *const LIGHT_BUTTONS = "/sys/class/leds/keyboard-backlight/brightness";
-#endif
 char const *const LIGHT_KEYBOARD = NULL;
 
 void init_g_lock(void)
@@ -48,7 +46,7 @@ static int write_int(char const *path, int value)
 
         already_warned = 0;
 
-        ALOGV("file:%s, func:%s, path=%s, value=%d\n", __FILE__, __func__, path, value);
+        ALOGV("%s, path=%s, value=%d\n", __func__, path, value);
         fd = open(path, O_RDWR);
 
         if (fd >= 0) {
@@ -59,7 +57,7 @@ static int write_int(char const *path, int value)
                 return amt == -1 ? -errno : 0;
         } else {
                 if (already_warned == 0) {
-                        ALOGE("file:%s, func:%s, failed to open %s\n", __FILE__, __func__, path);
+                        ALOGE("%s, failed to open %s\n", __func__, path);
                         already_warned = 1;
                 }
                 return -errno;
@@ -80,9 +78,9 @@ static int set_light_backlight(struct light_device_t *dev,
         int err = 0;
         int brightness = rgb_to_brightness(state);
 
-        ALOGV("file:%s, func:%s, brightness=%d\n", __FILE__, __func__, brightness);
+        ALOGV("%s, brightness=%d\n", __func__, brightness);
         if(NULL==LIGHT_BACKLIGHT) {
-                ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+                ALOGE("%s, unsupported light!\n", __func__);
                 return -EINVAL;
         }
 
@@ -97,16 +95,15 @@ static int is_lit(struct light_state_t const* state)
         return state->color & 0x00ffffff;
 }
 
-
 static int set_light_keyboard(struct light_device_t* dev,
                               struct light_state_t const* state)
 {
         int err = 0;
         int on = is_lit(state);
 
-        ALOGV("file:%s, func:%s, on=%d\n", __FILE__, __func__, on);
+        ALOGV("%s, on=%d\n",  __func__, on);
         if(NULL==LIGHT_KEYBOARD) {
-                ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+                ALOGE("%s, unsupported light!\n",  __func__);
                 return -EINVAL;
         }
 
@@ -115,16 +112,16 @@ static int set_light_keyboard(struct light_device_t* dev,
         pthread_mutex_unlock(&g_lock);
         return err;
 }
- #ifndef NON_BACKLIT_KEYS
+
 static int set_light_buttons(struct light_device_t* dev,
                              struct light_state_t const* state)
 {
         int err = 0;
         int on = is_lit(state);
 
-        ALOGV("file:%s, func:%s, on=%d\n", __FILE__, __func__, on);
+        ALOGV("%s, on=%d\n", __func__, on);
         if(NULL==LIGHT_BUTTONS) {
-                ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+                ALOGE("%s, unsupported light!\n", __func__);
                 return -EINVAL;
         }
 
@@ -133,29 +130,27 @@ static int set_light_buttons(struct light_device_t* dev,
         pthread_mutex_unlock(&g_lock);
         return err;
 }
-#endif
 
 static int close_lights(struct light_device_t *dev)
 {
-        ALOGV("file:%s, func:%s\n", __FILE__, __func__);
+        ALOGV("%s\n", __func__);
         if (dev)
                 free(dev);
         return 0;
 }
 
 /* LEDs */
-// Is this really needed? I expect a logcat spam. Confirmation required - corphish.
 static int set_light_leds_notifications(struct light_device_t *dev,
                                         struct light_state_t const *state)
 {
-        ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+        ALOGE("%s, unsupported light!\n", __func__);
         return -EINVAL;
 }
 
 static int set_light_leds_attention(struct light_device_t *dev,
                                     struct light_state_t const *state)
 {
-        ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+        ALOGE("%s, unsupported light!\n", __func__);
         return -EINVAL;
 }
 
@@ -165,20 +160,20 @@ static int open_lights(const struct hw_module_t *module, char const *name,
         int (*set_light)(struct light_device_t *dev,
                          struct light_state_t const *state);
 
-        ALOGV("file:%s, func:%s name=%s\n", __FILE__, __func__, name);
+        ALOGV("%s name=%s\n", __func__, name);
 
         if (0 == strcmp(LIGHT_ID_BACKLIGHT, name))
                 set_light = set_light_backlight;
+/*
         else if (0 == strcmp(LIGHT_ID_KEYBOARD, name))
                 set_light = set_light_keyboard;
-#ifndef NON_BACKLIT_KEYS
         else if (0 == strcmp(LIGHT_ID_BUTTONS, name))
                 set_light = set_light_buttons;
-#endif
         else if (0 == strcmp(LIGHT_ID_NOTIFICATIONS, name))
                 set_light = set_light_leds_notifications;
         else if (0 == strcmp(LIGHT_ID_ATTENTION, name))
                 set_light = set_light_leds_attention;
+*/
         else
                 return -EINVAL;
 

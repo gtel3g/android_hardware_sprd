@@ -15,10 +15,6 @@
 # limitations under the License.
 #
 
-supported_boards := \
-	sc8830 \
-	scx15 \
+LOCAL_PATH := $(call my-dir)
 
-ifneq (,$(filter $(supported_boards),$(TARGET_BOARD_PLATFORM)))
-include $(call all-named-subdir-makefiles,$(TARGET_BOARD_PLATFORM))
-endif
+include $(call all-makefiles-under,$(LOCAL_PATH))
