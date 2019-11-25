@@ -21,7 +21,6 @@ LOCAL_SHARED_LIBRARIES := \
 	libstagefright_foundation \
 	libstagefrighthw \
 	libmemoryheapion \
-	libmedia \
 	libutils \
 	libdl \
 	liblog

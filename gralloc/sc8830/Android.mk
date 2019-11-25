@@ -39,18 +39,8 @@ SHARED_MEM_LIBS := \
 LOCAL_SHARED_LIBRARIES := \
 	liblog \
 	libcutils \
-	libui \
-	libsync \
 	libGLESv1_CM \
 	$(SHARED_MEM_LIBS) \
-
-LOCAL_STATIC_LIBRARIES := \
-	libarect
-
-ifeq ($(TARGET_USES_GRALLOC1), true)
-LOCAL_STATIC_LIBRARIES += \
-	libgralloc1-adapter
-endif
 
 LOCAL_C_INCLUDES := \
 	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/video/ \
@@ -67,8 +57,12 @@ LOCAL_EXPORT_C_INCLUDE_DIRS := \
 LOCAL_CFLAGS := \
 	-DLOG_TAG=\"gralloc.$(TARGET_BOARD_PLATFORM)\" \
 
-ifeq ($(TARGET_USES_GRALLOC1), true)
-LOCAL_CFLAGS += -DADVERTISE_GRALLOC1
+ifeq ($(strip $(USE_UI_OVERLAY)),true)
+LOCAL_CFLAGS += -DUSE_UI_OVERLAY
+endif
+
+ifneq ($(strip $(TARGET_BUILD_VARIANT)),user)
+LOCAL_CFLAGS += -DDUMP_FB
 endif
 
 ifeq ($(USE_SPRD_DITHER),true)
@@ -83,8 +77,10 @@ endif
 LOCAL_SRC_FILES := \
 	gralloc_module.cpp \
 	alloc_device.cpp \
-	framebuffer_device.cpp
+	framebuffer_device.cpp \
+	dump_bmp.cpp \
 
+#LOCAL_CFLAGS+= -DMALI_VSYNC_EVENT_REPORT_ENABLE
 include $(BUILD_SHARED_LIBRARY)
 
 endif
