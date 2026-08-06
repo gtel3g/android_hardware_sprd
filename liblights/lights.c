@@ -1,3 +1,4 @@
+#include <stdlib.h>
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
@@ -77,7 +78,9 @@ static int rgb_to_brightness(struct light_state_t const *state)
 static int set_light_backlight(struct light_device_t *dev,
                                struct light_state_t const *state)
 {
-        int err = 0;
+        
+    (void)dev;
+int err = 0;
         int brightness = rgb_to_brightness(state);
 
         ALOGV("file:%s, func:%s, brightness=%d\n", __FILE__, __func__, brightness);
@@ -101,7 +104,9 @@ static int is_lit(struct light_state_t const* state)
 static int set_light_keyboard(struct light_device_t* dev,
                               struct light_state_t const* state)
 {
-        int err = 0;
+        
+    (void)dev;
+int err = 0;
         int on = is_lit(state);
 
         ALOGV("file:%s, func:%s, on=%d\n", __FILE__, __func__, on);
@@ -119,7 +124,9 @@ static int set_light_keyboard(struct light_device_t* dev,
 static int set_light_buttons(struct light_device_t* dev,
                              struct light_state_t const* state)
 {
-        int err = 0;
+        
+    (void)dev;
+int err = 0;
         int on = is_lit(state);
 
         ALOGV("file:%s, func:%s, on=%d\n", __FILE__, __func__, on);
@@ -148,14 +155,20 @@ static int close_lights(struct light_device_t *dev)
 static int set_light_leds_notifications(struct light_device_t *dev,
                                         struct light_state_t const *state)
 {
-        ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+        
+    (void)dev;
+    (void)state;
+ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
         return -EINVAL;
 }
 
 static int set_light_leds_attention(struct light_device_t *dev,
                                     struct light_state_t const *state)
 {
-        ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
+        
+    (void)dev;
+    (void)state;
+ALOGE("file:%s, func:%s, unsupported light!\n", __FILE__, __func__);
         return -EINVAL;
 }
 
