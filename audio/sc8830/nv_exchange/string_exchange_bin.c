@@ -17,9 +17,9 @@ aud_mode_t *s_audiomode =NULL;
 
 //#define PARSE_DEBUG
 #ifdef PARSE_DEBUG
-#define PARSE_LOG ALOGW
+#define PARSE_LOG(...) ALOGW(__VA_ARGS__)
 #else
-#define PARSE_LOG
+#define PARSE_LOG(...) do { if (0) ALOGW(__VA_ARGS__); } while (0)
 #endif
 static aud_mode_t  * parse(void);
 
@@ -79,9 +79,6 @@ static void start_tag(void *data, const XML_Char *tag_name,
 {
     struct modem_config_parse_state *state = data;
     aud_mode_t *aud_mode= state->audio_mode_info;
-    unsigned int i;
-    int value;
-
     /* Look at tags */
     if(strcmp(tag_name, "audiomode") == 0)
     {
@@ -119,7 +116,8 @@ attr_err:
 }
 static void end_tag(void *data, const XML_Char *tag_name)
 {
-    struct modem_config_parse_state *state = data;
+    (void)data;
+    (void)tag_name;
 }
 
 static aud_mode_t  *parse(void)
@@ -129,7 +127,6 @@ static aud_mode_t  *parse(void)
     FILE *file;
     int bytes_read;
     void *buf;
-    int i;
     int ret = 0;
     if(!s_audiomode)
     {
@@ -287,9 +284,9 @@ int my_strtol(char *src)
 
 void stringfile2nvstruct(char *filename, void *para_ptr, int lenbytes)
 {
+    (void)lenbytes;
     char nvLine[1024] = {0};
     char outputstyle[NAME_LEN_MAX] = {0};
-    int i=0;
     FILE *fpRead = NULL;/////////////////////////todo
     //short iValue = 0;
     int iValue = 0;
@@ -308,8 +305,7 @@ void stringfile2nvstruct(char *filename, void *para_ptr, int lenbytes)
     int index_extendArray = 0;
     int idx = 0;
 
-    char* lpFind_arm_arm =	NULL;
-    char* lpFind_eq_eq =  NULL;
+    char* lpFind_eq_eq = NULL;
     char* lpFind_eq_eq_eq = NULL;
     char* lp_Find  = NULL;
 
@@ -573,7 +569,7 @@ void stringfile2nvstruct(char *filename, void *para_ptr, int lenbytes)
                     int j = strlen("app_config_info_set\\app_config_info\\app_config_info[");
                     if(lpFindtemp != NULL)
                     {
-                        sscanf(lpFindtemp+j,"%[0-9]%[^]]",data);// tested.
+                        sscanf(lpFindtemp + j, "%127[0-9]%*[^]]", data);// tested.
                         int tmpdata = (short)atoi(data);
                         if(strstr(lpFindtemp,"eq_switch") != NULL)//2_lpFind = strstr(lpFindtemp,"eq_switch");
                         {
@@ -752,7 +748,7 @@ void stringfile2nvstruct(char *filename, void *para_ptr, int lenbytes)
                     lpFind_eq_eq = strstr(nvLine,"eq_mode_");
                     if(lpFind_eq_eq != NULL)
                     {
-                        sscanf(lpFind_eq_eq,"eq_mode_%[1-9]%[^\\]",data);//tested
+                        sscanf(lpFind_eq_eq, "eq_mode_%127[1-9]%*[^\\\\]", data); // tested
                         int tmpdata = atoi(data);
                         if(strstr(lpFind_eq_eq,"agc_in_gain") != NULL)
                         {
@@ -797,7 +793,7 @@ void stringfile2nvstruct(char *filename, void *para_ptr, int lenbytes)
                         lpFind_eq_eq_eq = strstr(lpFind_eq_eq,"eq_band_");
                         if(lpFind_eq_eq_eq != NULL)
                         {
-                            sscanf(lpFind_eq_eq_eq,"eq_band_%[0-9]%[^\\]",data);//tested
+                            sscanf(lpFind_eq_eq_eq, "eq_band_%127[0-9]%*[^\\\\]", data); // tested
                             int tmpdata_data = (short)atoi(data);
                             if(strstr(lpFind_eq_eq_eq,"fo") != NULL)
                             {
@@ -953,7 +949,6 @@ void  nvstruct2stringfile(char* filename,void *para_ptr, int lenbytes)
     int idx = 0;
     char *arm_name_pc = NULL;
     char *eq_name_pc = NULL;
-    int need_cpy_len = 0;
     int f=0;
     //char numbuf2[10] = {0};
     int aud_modenum = adev_get_audiomodenum4eng();
