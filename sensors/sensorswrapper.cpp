@@ -388,7 +388,7 @@ int sensors_poll_context_t::close() {
 static int device__close(struct hw_device_t *dev) {
     sensors_poll_context_t* ctx = (sensors_poll_context_t*) dev;
     if (ctx != NULL) {
-        int retval = ctx->close();
+        ctx->close();
         delete ctx;
     }
     return 0;
@@ -414,6 +414,9 @@ static int device__poll(struct sensors_poll_device_t *dev, sensors_event_t* data
 
 static int device__batch(struct sensors_poll_device_1 *dev, int handle,
         int flags, int64_t period_ns, int64_t timeout) {
+    (void)flags;
+    (void)timeout;
+
     sensors_poll_context_t* ctx = (sensors_poll_context_t*) dev;
 
     ctx->setDelay(handle, period_ns);
@@ -422,20 +425,13 @@ static int device__batch(struct sensors_poll_device_1 *dev, int handle,
 }
 
 static int device__flush(struct sensors_poll_device_1 *dev, int handle) {
+    (void)dev;
+    (void)handle;
     return -EINVAL;
 }
 
 static int open_sensors(const struct hw_module_t* module, const char* name,
         struct hw_device_t** device);
-
-static bool starts_with(const char* s, const char* prefix) {
-    if (s == NULL || prefix == NULL) {
-        return false;
-    }
-    size_t s_size = strlen(s);
-    size_t prefix_size = strlen(prefix);
-    return s_size >= prefix_size && strncmp(s, prefix, prefix_size) == 0;
-}
 
 static void add_so_module(const char* path) {
     const char* sym = HAL_MODULE_INFO_SYM_AS_STR;

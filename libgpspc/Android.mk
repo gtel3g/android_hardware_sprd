@@ -29,6 +29,8 @@ LOCAL_CFLAGS += -DGNSS_ANDROIDN
 endif
 LOCAL_CFLAGS += -DGNSS_ANDROIDN #it the test
 
+LOCAL_CFLAGS += -Wno-error=unused-variable -Wno-error=unused-parameter
+
 include $(BUILD_SHARED_LIBRARY)
 
 
