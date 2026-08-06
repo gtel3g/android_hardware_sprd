@@ -84,7 +84,7 @@ int read_nv_partition(char * path,char * Bak_path, char * path_out)
 	Bak_header_ptr = (nv_header_t *)Bak_header;
 	MODEM_LOGD(" %s path=%s, bak_path=%s, out=%s\n",__func__,path,Bak_path,path_out);
 	do{
-		handle = open(path, O_RDWR, S_IRUSR | S_IWUSR /* S_IRWXU | S_IRWXG | S_IRWXO */);
+		handle = open(path, O_RDWR);
 		if(handle <= 0)
 			return 0;
 		else{
@@ -109,7 +109,7 @@ int read_nv_partition(char * path,char * Bak_path, char * path_out)
 	}while(0);
 
 	do{
-		Bak_Handle = open(Bak_path, O_RDWR, S_IRUSR | S_IWUSR);
+		Bak_Handle = open(Bak_path, O_RDWR);
 		
 		if (Bak_Handle <= 0){
 			close(handle);

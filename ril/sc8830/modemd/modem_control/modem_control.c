@@ -706,7 +706,7 @@ static void* modem_ctrl_listen_thread(void *para)
 			load_sipc_modem_img(modem,0);
 			if(!wait_for_modem_alive(modem))
 				return NULL;
-			if(i=write(client_modemd,MODEM_ALIVE,strlen(MODEM_ALIVE))<=0){
+			if ((i = write(client_modemd, MODEM_ALIVE, strlen(MODEM_ALIVE))) <= 0){
 				MODEM_LOGE("%s,write modem_alive errno:[%d] %s\n", __FUNCTION__,errno, strerror(errno));
 				system("echo load_modem_img >/sys/power/wake_unlock");
 				g_b_wake_locking = false;
@@ -851,7 +851,7 @@ void* detect_sipc_modem(void *param)
 		return NULL;
 	}
 	/*inform modemd cp is running*/
-	while(i=write(client_modemd,MODEM_ALIVE,strlen(MODEM_ALIVE))<=0){
+	while ((i = write(client_modemd, MODEM_ALIVE, strlen(MODEM_ALIVE))) <= 0){
 		MODEM_LOGE("%s,write modem_alive errno:[%d] %s\n", __FUNCTION__,errno, strerror(errno));
 		sleep(1);
 	}

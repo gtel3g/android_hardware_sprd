@@ -16,6 +16,7 @@ LOCAL_SHARED_LIBRARIES := \
 ifeq ($(strip $(TARGET_USERIMAGES_USE_EXT4)),true)
 LOCAL_CFLAGS := -DCONFIG_EMMC
 endif
+LOCAL_CFLAGS += -Wno-error
 
 LOCAL_MODULE := modem_control
 

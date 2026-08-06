@@ -5,6 +5,9 @@
 #ifndef __PACKET_H
 #define __PACKET_H
 
+#ifdef LOG_TAG
+#undef LOG_TAG
+#endif
 #define LOG_TAG 	"MODEM_CTRL"
 #include <log/log.h>
 

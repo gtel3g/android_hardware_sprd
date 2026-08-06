@@ -204,7 +204,7 @@ ipc_blocking_write(int fd, const void *buffer, size_t len) {
     while (writeOffset < len) {
         ssize_t written;
         do {
-            MODEM_LOGD("write: fd:%d toWrite:0x%x writeOffset:%d len:%d\n", fd, toWrite, writeOffset, len);
+            MODEM_LOGD("write: fd:%d toWrite:%p writeOffset:%d len:%d\n", fd, (const void *)toWrite, writeOffset, len);
             written = write (fd, toWrite + writeOffset,
                                 len - writeOffset);
             MODEM_LOGD("write returned: written:%d errno:%d\n", written, errno);
@@ -478,7 +478,7 @@ static int get_modem_assert_information(char *assert_info,int size)
                 ret = read(uart_fd,buffer,size);
                 timeout++;
                 if(ret > 0) {
-                        MODEM_LOGD("read_len[%d] = %d \n",timeout,read_len);
+                        MODEM_LOGD("read_len[%lu] = %d \n",timeout,read_len);
                         size -= ret;
                         read_len += ret;
                         buffer += ret;

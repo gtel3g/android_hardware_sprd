@@ -2,7 +2,7 @@
 #ifndef _MODEM_CONTROL_H_
 #define _MODEM_CONTROL_H_
 
-#define bool int
+#include <stdbool.h>
 
 #define TD_MODEM_ENABLE_PROP        "persist.modem.t.enable"
 #define  W_MODEM_ENABLE_PROP        "persist.modem.w.enable"

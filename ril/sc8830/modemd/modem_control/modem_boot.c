@@ -1,3 +1,4 @@
+#include <cutils/properties.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
@@ -355,7 +356,7 @@ int _chkImg(char *fileName, int size)
 
 	buf = malloc(size);
 	memset(buf,0xFF,size);
-	fileHandle = open(fileName, O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
+	fileHandle = open(fileName, O_RDWR);
 	if(fileHandle < 0){
 		free(buf);
 		return 0;
