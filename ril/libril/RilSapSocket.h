@@ -49,7 +49,6 @@ class RilSapSocket : public RilSocket {
      * @return Radio functions with handlers for onRequest, onStateRequest,
      *         supports, onCancel and getVersion.
      */
-    RIL_RadioFunctions *(*UimInit)(const struct RIL_Env *, int argc, char **argv);
 
     /**
      * Place holder for the radio functions returned by the initialization

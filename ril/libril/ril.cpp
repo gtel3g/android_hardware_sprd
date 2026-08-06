@@ -455,8 +455,6 @@ extern "C" void RIL_setcallbacks (const RIL_RadioFunctions *callbacks) {
 
 extern "C" void
 RIL_register (const RIL_RadioFunctions *callbacks) {
-    int ret;
-    int flags;
 
     RLOGI("SIM_COUNT: %d", SIM_COUNT);
 
@@ -602,9 +600,6 @@ checkAndDequeueRequestInfoIfAck(struct RequestInfo *pRI, bool isAck) {
 extern "C" void
 RIL_onRequestAck(RIL_Token t) {
     RequestInfo *pRI;
-    int ret;
-
-    size_t errorOffset;
     RIL_SOCKET_ID socket_id = RIL_SOCKET_1;
 
     pRI = (RequestInfo *)t;
@@ -638,7 +633,6 @@ extern "C" void
 RIL_onRequestComplete(RIL_Token t, RIL_Errno e, void *response, size_t responselen) {
     RequestInfo *pRI;
     int ret;
-    size_t errorOffset;
     RIL_SOCKET_ID socket_id = RIL_SOCKET_1;
 
     pRI = (RequestInfo *)t;
@@ -1023,7 +1017,7 @@ failCauseToString(RIL_Errno e) {
         case RIL_E_SIM_FULL: return "E_SIM_FULL";
         case RIL_E_NETWORK_REJECT: return "E_NETWORK_REJECT";
         case RIL_E_OPERATION_NOT_ALLOWED: return "E_OPERATION_NOT_ALLOWED";
-        case RIL_E_EMPTY_RECORD: "E_EMPTY_RECORD";
+        case RIL_E_EMPTY_RECORD: return "E_EMPTY_RECORD";
         case RIL_E_INVALID_SMS_FORMAT: return "E_INVALID_SMS_FORMAT";
         case RIL_E_ENCODING_ERR: return "E_ENCODING_ERR";
         case RIL_E_INVALID_SMSC_ADDRESS: return "E_INVALID_SMSC_ADDRESS";
