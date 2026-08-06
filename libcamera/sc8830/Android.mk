@@ -305,7 +305,6 @@ LOCAL_SHARED_LIBRARIES := \
 	libutils \
 	libbinder \
 	libcamera_client \
-	libskia \
 	libcutils \
 	libhardware \
 	libawb \
@@ -323,6 +322,8 @@ LOCAL_SHARED_LIBRARIES := \
 ifeq ($(strip $(TARGET_BOARD_CAMERA_FACE_DETECT)),true)
 LOCAL_SHARED_LIBRARIES += libface_finder
 endif
+
+LOCAL_STATIC_LIBRARIES := libskia
 
 include $(BUILD_SHARED_LIBRARY)
 
