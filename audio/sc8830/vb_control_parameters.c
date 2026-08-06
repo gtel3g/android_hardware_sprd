@@ -130,9 +130,10 @@ static uint32_t s_call_dl_devices = 0;   // devices value the same as audiosyste
 static uint32_t s_call_ul_devices = 0;
 static int s_is_active = 0;
 static int android_sim_num = 0;
+
 static vbc_ctrl_pipe_para_t s_default_vbc_ctrl_pipe_info =
 {
-    "/dev/vbpipe6",0,CP_TG
+    "/dev/vbpipe6", 0, CP_TG, "", 0
 };
 
 /* Transfer packet by vbpipe, packet format as follows.*/
@@ -169,7 +170,7 @@ extern int headset_no_mic();
  * local functions definition.
  */
 
-static int read_nonblock(int fd,int8_t *buf,int bytes)
+static int read_nonblock(int fd, void *buf, int bytes)
 {
     int ret = 0;
     int bytes_to_read = bytes;
@@ -197,7 +198,7 @@ static int read_nonblock(int fd,int8_t *buf,int bytes)
         return (bytes_to_read - bytes);
 
 }
-static int write_nonblock(int fd,int8_t *buf,int bytes)
+static int write_nonblock(int fd, const void *buf, int bytes)
 {
     int ret = -1;
     int bytes_to_read = bytes;
@@ -260,7 +261,7 @@ static int  ReadParas_OpenHal(int fd_pipe, open_hal_t *hal_open_param)
     int ret = 0;
     if (fd_pipe > 0 && hal_open_param != NULL) {
         ret = read_nonblock(fd_pipe, hal_open_param, sizeof(open_hal_t));
-        if(ret != sizeof(sizeof(open_hal_t)))
+        if(ret != sizeof(open_hal_t))
             ret = -1;
     }
     return ret;

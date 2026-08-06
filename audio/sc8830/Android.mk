@@ -103,6 +103,8 @@ LOCAL_REQUIRED_MODULES := \
 
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_CFLAGS += -Wno-error
+
 include $(BUILD_SHARED_LIBRARY)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))

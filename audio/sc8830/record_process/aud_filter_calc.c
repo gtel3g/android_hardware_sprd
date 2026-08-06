@@ -1389,8 +1389,8 @@ BOOLEAN Filter_CalcRecordEq(
 	int16_t*   sGain                  //OUT  scaled by 4096
 )
 {
-    int16_t G0_Index=0,G1_Index=0;
-    int16_t G0_fix=0,G1_fix=0,B_G_fix=0;
+    int16_t G0_Index=0;
+    int16_t G0_fix=0,G1_fix=0;
     int32_t EQ_B_GAIN=0;
     int32_t m=0,n_bit=0;
     

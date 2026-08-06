@@ -1,3 +1,4 @@
+#include <string.h>
 /******************************************************************************
  ** File Name:      aud_proc_config.c                                                     *
  ** Author:         Cherry.Liu                                                *
@@ -189,7 +190,7 @@ extern "c"
  BOOLEAN RECORD_EQ_BAND_SW[RECORDEQ_MAX_BAND] =  {0}; 
  int16_t s_cur_recordeq_master_gain = 0; //sacled by 1024
 
- int16_t s_cur_recordeq_para[RECORDEQ_MAX_BAND][5] = {0};
+ int16_t s_cur_recordeq_para[RECORDEQ_MAX_BAND][5] = {{0}};
  int16_t s_cur_recordeq_s_gain[RECORDEQ_MAX_BAND]  = {0};//sacled by 4096
  int32_t CUR_RECORD_EQ_L_D1[RECORDEQ_MAX_BAND] = {0}; //%long
  int32_t CUR_RECORD_EQ_L_D2[RECORDEQ_MAX_BAND] = {0}; //%long
@@ -953,7 +954,7 @@ static BOOLEAN AUDPROC_Initeq(
     RECORDEQ_CONTROL_PARAM_T *recordeq_param_ptr,
     int32_t       Fs)
 {
-    REC_IIR_FILTER_PARA_T  recordeq_filter_set[RECORDEQ_MAX_BAND] = {0};//out
+    REC_IIR_FILTER_PARA_T  recordeq_filter_set[RECORDEQ_MAX_BAND] = {{0}};//out
     int16_t  i=0;
 
     //RECORD_EQ_SW = recordeq_param_ptr->RECORDEQ_SW;
@@ -1279,7 +1280,9 @@ void  AUDPROC_ProcessDp(
     uint32_t* puiDestCount
 )
 {
-    int16_t  si  = 0 , i=0;
+    
+uint32_t si = 0;
+    int16_t i = 0;
     int16_t  sl=0,sr=0,d_L=0,d_R=0;
     uint16_t mabslr=0,x_p_del=0;
     uint16_t x_rp_dp  = 0;//uint16_t
@@ -1304,8 +1307,6 @@ void  AUDPROC_ProcessDp(
     int16_t  xout_R_H   =  0;//higher word
     int16_t  xout_R_L   =  0;//lower word
 
-    int16_t  lcf_gain_l = 0;//scaled by 1024 
-    int16_t  lcf_gain_r = 0;  //scaled by 1024
     //int32_t  out_left = 0;
     //int32_t  out_right = 0;   
     int64  out_left = 0;

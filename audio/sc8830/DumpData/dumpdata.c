@@ -36,9 +36,9 @@
 //#define XDUMP_DEBUG
 
 #ifdef XDUMP_DEBUG
-#define XDUMP_TRACE  ALOGW
+#define XDUMP_TRACE(...) ALOGW(__VA_ARGS__)
 #else
-#define XDUMP_TRACE
+#define XDUMP_TRACE(...) do { if (0) ALOGW(__VA_ARGS__); } while (0)
 #endif
 
 
@@ -64,7 +64,6 @@ FILE *AUDIO_OUT_fd[DUMP_FILE_MAX_NUM];
 
 static  aud_dump_item_t *dump_create_mem(aud_dump_t  *aud_dump_info, const char *num)
 {	
-    aud_dump_item_t *a;
 	     XDUMP_TRACE("enter dump_create_mem---");
     if (!atoi((char *)num)) {
         ALOGE("Unnormal dump item num!");
@@ -137,7 +136,7 @@ static void dump_start_tag(void *data, const XML_Char *tag_name,
             		if((strlen(attr[5]) +1) <= DUMP_FILE_PATH_LEN_MAX){
 				s_len = strlen(attr[5]);
 				memcpy(state->aud_dmp_info->path_name, attr[5], strlen(attr[5])+1);
-				XDUMP_TRACE("The dump path name 2 is %d last n = %'",strlen(attr[5]) ,state->aud_dmp_info->path_name[s_len-1] );
+				XDUMP_TRACE("The dump path name 2 is %d last n = %c",strlen(attr[5]) ,state->aud_dmp_info->path_name[s_len-1] );
 				
 	                		
 				if ( state->aud_dmp_info->path_name[s_len-1] != '/')

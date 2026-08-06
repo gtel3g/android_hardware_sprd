@@ -201,7 +201,10 @@ volatile int log_level = 4;
 #define BT_SCO_DOWNLINK_OPEN_FAIL       (1 << 8)
 #define AUDFIFO "/data/local/media/audiopara_tuning"
 
-#define VOIP_PIPE_NAME_MAX    16
+
+#ifndef VOIP_PIPE_NAME_MAX
+#define VOIP_PIPE_NAME_MAX 16
+#endif
 
 #define MAX_STOP_THRESHOLD ((unsigned int)-1)/2-1
 
