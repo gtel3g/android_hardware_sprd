@@ -274,8 +274,12 @@ PUBLIC void VB_SetDG (
 //  Author:         Jeff.Li
 //  Note:
 /*****************************************************************************/
+
 PUBLIC void AUDDEV_SetPGA (uint32_t uiChannel, uint32_t uiGain)
 {
+
+    (void)uiChannel;
+    (void)uiGain;
 #if 0
     uint32_t dac_pga = 0;
     uint32_t hp_pga  = 0;

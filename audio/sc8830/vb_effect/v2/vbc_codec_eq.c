@@ -68,7 +68,7 @@
  /**---------------------------------------------------------------------------**
   **						 Global Variables								   **
   **---------------------------------------------------------------------------**/
- LOCAL AUDIO_ENHA_EQ_NV_PARA_T s_enha_eq_para_nv ={0};
+ LOCAL AUDIO_ENHA_EQ_NV_PARA_T s_enha_eq_para_nv;
  LOCAL DG_CONTROL_PARAM_T	   s_cur_dg_param	  = {0};   //dg
  LOCAL DAPATH_CONTROL_PARAM_T  s_cur_dapath_param = {0};   //da path
  LOCAL ALC_CONTROL_PARAM_T	   s_cur_alc_param	  = {0};   //alc
@@ -182,7 +182,9 @@ LOCAL int32_t get_cur_sample_rate(void)
 	 HPF_GAIN_PARAM_T*		 hpf_gain_ptr  = &hpf_param_ptr->s_gain;
 	 FILTER_EQ_CALC_PARA_T	eq_input_para = {0};//in
 	 IIR_FILTER_PARA_T	lcf_filter_set = {0};//out
-	 IIR_FILTER_PARA_T	eq_filter_set[EQ_BAND_MAX] = {0};//out
+
+	 IIR_FILTER_PARA_T	eq_filter_set[EQ_BAND_MAX];//out
+	 memset(eq_filter_set, 0, sizeof(eq_filter_set));
 	 BOOLEAN  return_value = SCI_TRUE;
 	 HPF_GAIN_PARAM_T ori_hpf_gain = {0};
 

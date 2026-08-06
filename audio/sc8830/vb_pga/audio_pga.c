@@ -22,6 +22,8 @@
 #include <expat.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <cutils/log.h>
 
@@ -258,7 +260,6 @@ static void audio_pga_start_tag(void *data, const XML_Char *tag_name,
 {
 	struct config_parse_state *state = data;
 	struct audio_pga *pga = state->pga;
-	unsigned int i;
 	int value;
 	struct mixer_ctl *ctl;
 	struct pga_item item;
@@ -346,9 +347,11 @@ attr_err:
 	return;
 }
 
+
 static void audio_pga_end_tag(void *data, const XML_Char *tag_name)
 {
-	struct config_parse_state *state = data;
+	(void)data;
+	(void)tag_name;
 }
 
 static void audio_pga_mixer_set(struct mixer_ctl *ctl, int new_value)
@@ -380,7 +383,6 @@ struct audio_pga *audio_pga_init(struct mixer *mixer)
 	FILE *file;
 	int bytes_read;
 	void *buf;
-	int i;
 	struct audio_pga *pga;
 
 	pga = calloc(1, sizeof(struct audio_pga));

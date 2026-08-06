@@ -351,8 +351,10 @@ LOCAL CONST int16_t BaseGTable[901] = {//%32768πÈ“ªªØ
 23197,23466,23738,24013,24291,24572,24857,25144,25436,25730,26028,26329,26634,26943,27255,27570,27890,28213,28539,28870,29204,29542,29884,30230,30580,30934,31293,31655,32022,32392,
 32767};
 
+
 int32_t do_sprddiv64(int64_t dividend,int32_t divisor)    //jian.chen add
 {
+	(void)dividend;
 	if(0 == divisor){
 		// printk(KERN_ERR "filter_calc.c do_sprddiv64 divisor==0!\n");
 		return ENODATA;

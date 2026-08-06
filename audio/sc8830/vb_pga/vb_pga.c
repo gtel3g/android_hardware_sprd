@@ -33,8 +33,6 @@
 #define MIXER_CTL_INNER_PA_CONFIG   "Inter PA Config"
 
 
-static int fd_audio_para = -1;
-static int tiny_card_num = -1;
 
 typedef struct {
     unsigned short adc_pga_gain_l;

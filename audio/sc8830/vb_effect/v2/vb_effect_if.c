@@ -442,14 +442,12 @@ static const unsigned vbc_reg_default[VBC_EFFECT_PARAS_LEN] = {
 
 };
 
-static int fd_src_paras;
 static FILE *  fd_dest_paras;
 
 /*
  * for VBC EQ tuning by audiotester
  */
 static struct mixer_ctl *s_ctl_eq_update = NULL;
-static struct mixer_ctl *s_ctl_eq_select = NULL;
 static int s_cur_out_devices = 0;
 static int s_cur_in_devices = 0;
 static AUDIO_TOTAL_T * s_vb_effect_ptr = NULL;
@@ -560,7 +558,7 @@ static int do_parse(AUDIO_TOTAL_T *audio_params_ptr, unsigned int params_size)
         memcpy(vbc_ad01_effect_profile->name, cur_params_ptr->audio_nv_arm_mode_info.ucModeName, 16);
         vbc_ad01_effect_profile->effect_paras[0] = effect_profile->ad_ctl_paras[0];
         vbc_ad01_effect_profile->effect_paras[1] = effect_profile->ad_ctl_paras[1];
-        memcpy((void*)(vbc_ad01_effect_profile->effect_paras)+sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, (void*)(effect_profile->effect_paras)+sizeof(vbc_da_effect_profile->effect_paras), sizeof(vbc_ad01_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN);
+        memcpy((char*)(vbc_ad01_effect_profile->effect_paras)+sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, (const char*)(effect_profile->effect_paras)+sizeof(vbc_da_effect_profile->effect_paras), sizeof(vbc_ad01_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN);
         ALOGI("vbc_ad01_effect_profile->name is %s", vbc_ad01_effect_profile->name);
         fseek(fd_dest_paras,sizeof(struct vbc_fw_header)+i*sizeof(struct vbc_ad_eq_profile)+VBC_EFFECT_PROFILE_CNT*sizeof(struct vbc_da_eq_profile), SEEK_SET);
         fwrite(vbc_ad01_effect_profile, sizeof(struct vbc_ad_eq_profile), 1, fd_dest_paras);
@@ -570,7 +568,7 @@ static int do_parse(AUDIO_TOTAL_T *audio_params_ptr, unsigned int params_size)
         memcpy(vbc_ad23_effect_profile->name, cur_params_ptr->audio_nv_arm_mode_info.ucModeName, 16);
         vbc_ad23_effect_profile->effect_paras[0] = effect_profile->ad_ctl_paras[0];
         vbc_ad23_effect_profile->effect_paras[1] = effect_profile->ad_ctl_paras[1];
-        memcpy((void*)(vbc_ad23_effect_profile->effect_paras)+sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, (void*)(effect_profile->effect_paras)+sizeof(vbc_da_effect_profile->effect_paras)+sizeof(vbc_ad01_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, sizeof(vbc_ad23_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN);
+        memcpy((char*)(vbc_ad23_effect_profile->effect_paras)+sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, (const char*)(effect_profile->effect_paras)+sizeof(vbc_da_effect_profile->effect_paras)+sizeof(vbc_ad01_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN, sizeof(vbc_ad23_effect_profile->effect_paras)-sizeof(uint32_t)*VBC_AD_CTL_PARAS_LEN);
         ALOGI("vbc_ad23_effect_profile->name is %s", vbc_ad23_effect_profile->name);
         fseek(fd_dest_paras,sizeof(struct vbc_fw_header)+i*sizeof(struct vbc_ad_eq_profile)+VBC_EFFECT_PROFILE_CNT*sizeof(struct vbc_da_eq_profile)+VBC_EFFECT_PROFILE_CNT*sizeof(struct vbc_ad_eq_profile), SEEK_SET);
         fwrite(vbc_ad23_effect_profile, sizeof(struct vbc_ad_eq_profile), 1, fd_dest_paras);
@@ -601,7 +599,7 @@ int create_vb_effect_params(void)
     //read audio params from source file.
     aud_params_ptr = get_aud_paras();
 
-    ALOGI("create_vb_effect_params...start,aud_params_ptr:0x%x",aud_params_ptr);
+    ALOGI("create_vb_effect_params...start,aud_params_ptr:%p",(void *)aud_params_ptr);
     //close fd
     if (aud_params_ptr) {
         ret = do_parse(aud_params_ptr, adev_get_audiomodenum4eng()*sizeof(AUDIO_TOTAL_T));
@@ -620,8 +618,10 @@ void vb_effect_setpara(AUDIO_TOTAL_T *para)
     s_vb_effect_ptr = para;
 }
 
+
 void vb_effect_config_mixer_ctl(struct mixer_ctl *eq_update, struct mixer_ctl *profile_select)
 {
+    (void)profile_select;
     s_ctl_eq_update = eq_update;
     //ignore profile_sele 
 }
