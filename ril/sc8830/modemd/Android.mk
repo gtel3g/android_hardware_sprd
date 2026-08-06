@@ -30,6 +30,8 @@ LOCAL_PROPRIETARY_MODULE := true
 
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_CFLAGS += -Wno-error
+
 include $(BUILD_EXECUTABLE)
 
 include $(LOCAL_PATH)/modem_control/Android.mk

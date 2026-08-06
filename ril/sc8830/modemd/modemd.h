@@ -171,6 +171,7 @@ void start_modem(char *param);
 
 void* detect_modem_blocked(void *param);
 
+int loop_info_sockclients(const char *buf, int len);
 extern void exit_modemd(void);
 int open_modem_dev(char *path);
 int wait_for_alive(int modem, int is_assert);
