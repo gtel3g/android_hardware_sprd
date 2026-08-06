@@ -46,9 +46,15 @@ extern "C" int _ZNK7android13SensorManager17assertStateLockedEv() {
 
 extern "C" void *CRYPTO_malloc(int num, const char *file, int line);
 extern "C" void *CRYPTO_malloc(int num, const char *file, int line) {
+    (void)file;
+    (void)line;
     return num <= 0 ? NULL : malloc(num);
 }
 
 extern "C" long SSL_CTX_ctrl(SSL_CTX *ctx, int cmd, long larg, void *parg) {
+    (void)ctx;
+    (void)cmd;
+    (void)larg;
+    (void)parg;
     return 0;
 }
