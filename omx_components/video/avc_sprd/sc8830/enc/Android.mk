@@ -20,6 +20,12 @@ LOCAL_CFLAGS := \
 	-DOSCL_EXPORT_REF= \
 	-DOSCL_IMPORT_REF=
 
+LOCAL_CFLAGS += \
+	-Wno-error=switch \
+	-Wno-error=unused-variable \
+	-Wno-error=unused-parameter \
+	-Wno-error=unused-but-set-variable
+
 LOCAL_LDFLAGS += -Wl,--no-warn-shared-textrel
 
 LOCAL_ARM_MODE := arm

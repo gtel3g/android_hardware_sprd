@@ -1189,12 +1189,18 @@ void SPRDMPEG4Decoder::onQueueFilled(OMX_U32 portIndex) {
         int64_t start_decode = systemTime();
         MMDecRet decRet =	(*mMP4DecDecode)( mHandle, &dec_in,&dec_out);
         int64_t end_decode = systemTime();
-        ALOGI("%s, %d, decRet: %d, %dms, frameEffective: %d, pOutFrameY: %0x, pBufferHeader: %0x, needIVOP: %d, error_flag: %0x",
-              __FUNCTION__, __LINE__, decRet, (unsigned int)((end_decode-start_decode) / 1000000L),dec_out.frameEffective, dec_out.pOutFrameY, dec_out.pBufferHeader,mNeedIVOP, mHandle->g_mpeg4_dec_err_flag);
+        ALOGI("%s, %d, decRet: %d, %dms, frameEffective: %d, pOutFrameY: %p, pBufferHeader: %p, needIVOP: %d, error_flag: %0x",
+              __FUNCTION__, __LINE__, decRet,
+              (unsigned int)((end_decode-start_decode) / 1000000L),
+              dec_out.frameEffective,
+              (void *)dec_out.pOutFrameY,
+              dec_out.pBufferHeader,
+              mNeedIVOP,
+              mHandle->g_mpeg4_dec_err_flag);
 
         if(iUseAndroidNativeBuffer[OMX_DirOutput]) {
             if(mapper.unlock((const native_handle_t*)outHeader->pBuffer)) {
-                ALOGE("onQueueFilled, mapper.unlock fail %x",outHeader->pBuffer);
+                ALOGE("onQueueFilled, mapper.unlock fail %p", (void *)outHeader->pBuffer);
             }
         }
 

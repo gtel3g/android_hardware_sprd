@@ -20,6 +20,10 @@ LOCAL_CFLAGS := \
 	-DOSCL_EXPORT_REF= \
 	-DOSCL_IMPORT_REF=
 
+LOCAL_CFLAGS += \
+	-Wno-error=switch \
+	-Wno-error=unused-parameter
+
 LOCAL_ARM_MODE := arm
 
 LOCAL_SHARED_LIBRARIES := \

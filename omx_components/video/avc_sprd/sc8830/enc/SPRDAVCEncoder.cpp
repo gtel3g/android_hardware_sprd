@@ -237,7 +237,7 @@ inline static void inittable()
         RGB_b_cr[i] = (18 * i);
     }
 }
-inline static void ConvertARGB888ToYVU420SemiPlanar(uint8_t *inrgb, uint8_t* outy,uint8_t* outuv,
+inline static void __attribute__((unused)) ConvertARGB888ToYVU420SemiPlanar(uint8_t *inrgb, uint8_t* outy,uint8_t* outuv,
         int32_t width_org, int32_t height_org, int32_t width_dst, int32_t height_dst) {
 #define RGB2Y(_r, _g, _b)    ((  *(RGB_r_y +_r)      +   *(RGB_g_y+_g)   +    *(RGB_b_y+_b)) >> 8) + 16;
 #define RGB2CB(_r, _g, _b)   (( -*(RGB_r_cb +_r)     -   *(RGB_g_cb+_g)  +    *(RGB_r_cr_b_cb+_b)) >> 8) + 128;
@@ -250,10 +250,10 @@ inline static void ConvertARGB888ToYVU420SemiPlanar(uint8_t *inrgb, uint8_t* out
     if (NULL == inrgb || NULL ==  outy || NULL == outuv)
         return;
 
-    if (height_org & 0x1 != 0)
+    if ((height_org & 0x1) != 0)
         height_org &= ~0x1;
 
-    if (width_org & 0x1 != 0) {
+    if ((width_org & 0x1) != 0) {
         ALOGE("width_org:%d is not supported", width_org);
         return;
     }
@@ -512,6 +512,10 @@ void neon_intrinsics_ARGB888ToYVU420Semi(uint8_t *inrgb, uint8_t* outy,uint8_t* 
 }
 #endif //, neon_intrinsics_ARGB888ToYVU420Semi
 
+#undef RGB2Y
+#undef RGB2CB
+#undef RGB2CR
+
 inline static void ConvertARGB888ToYVU420SemiPlanar_neon(uint8_t *inrgb, uint8_t* outy,uint8_t* outuv,
                     int32_t width_org, int32_t height_org, int32_t width_dst, int32_t height_dst) {
 #define RGB2Y(_r, _g, _b) (((66 * (_r) + 129 * (_g) + 25 * (_b)) >> 8) + 16)
@@ -526,10 +530,10 @@ inline static void ConvertARGB888ToYVU420SemiPlanar_neon(uint8_t *inrgb, uint8_t
     if (NULL == inrgb || NULL == outuv || NULL==outy)
         return;
 
-    if (height_org & 0x1 != 0)
+    if ((height_org & 0x1) != 0)
         height_org &= ~0x1;
 
-    if (width_org & 0x1 != 0) {
+    if ((width_org & 0x1) != 0) {
         ALOGE("width_org:%d is not supported", width_org);
         return;
     }
@@ -570,12 +574,12 @@ SPRDAVCEncoder::SPRDAVCEncoder(
       mNumInputFrames(-1),
       mPrevTimestampUs(-1),
       mSetFreqCount(0),
+      mBitrate(0),
+      mEncSceneMode(0),
       mVideoWidth(176),
       mVideoHeight(144),
       mVideoFrameRate(30),
       mVideoBitRate(192000),
-      mBitrate(0),
-      mEncSceneMode(0),
       mVideoColorFormat(OMX_COLOR_FormatYUV420SemiPlanar),
       mStoreMetaData(OMX_FALSE),
       mPrependSPSPPS(OMX_FALSE),
