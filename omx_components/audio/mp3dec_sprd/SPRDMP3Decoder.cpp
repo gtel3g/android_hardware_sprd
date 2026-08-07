@@ -59,11 +59,11 @@ SPRDMP3Decoder::SPRDMP3Decoder(
       mEOSFlag(false),
       mSignalledError(false),
       mLibHandle(NULL),
-      mOutputPortSettingsChange(NONE),
       mMP3_ARM_DEC_Construct(NULL),
       mMP3_ARM_DEC_Deconstruct(NULL),
       mMP3_ARM_DEC_InitDecoder(NULL),
-      mMP3_ARM_DEC_DecodeFrame(NULL) {
+      mMP3_ARM_DEC_DecodeFrame(NULL),
+      mOutputPortSettingsChange(NONE) {
     bool ret = false;
     ret = openDecoder("libomx_mp3dec_sprd.so");
     CHECK_EQ(ret, true);
@@ -421,6 +421,7 @@ void dump_mp3(int port, void *buffer, size_t size)
 }
 #endif
 void SPRDMP3Decoder::onQueueFilled(OMX_U32 portIndex) {
+    (void)portIndex;
     if (mSignalledError || mOutputPortSettingsChange != NONE) {
         return;
     }
@@ -577,7 +578,7 @@ void SPRDMP3Decoder::onQueueFilled(OMX_U32 portIndex) {
         }
 
         if (numOutBytes <= outHeader->nOffset) {
-            ALOGI("onQueueFilled, numOutBytes:%d <= outHeader->nOffset:%ld, continue", numOutBytes, outHeader->nOffset);
+            ALOGI("onQueueFilled, numOutBytes:%d <= outHeader->nOffset:%u, continue", numOutBytes, outHeader->nOffset);
             continue;
         }
 
@@ -604,6 +605,7 @@ void SPRDMP3Decoder::onPortFlushPrepare(OMX_U32 portIndex) {
     }
 }
 void SPRDMP3Decoder::onPortFlushCompleted(OMX_U32 portIndex) {
+    (void)portIndex;
     // TODO
 }
 

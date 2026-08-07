@@ -15,6 +15,7 @@
  */
  #define LOG_TAG "isp_awb_ctrl"
 
+#include <string.h>
 #include "isp_com.h"
 #include "isp_log.h"
 #include "isp_awb.h"

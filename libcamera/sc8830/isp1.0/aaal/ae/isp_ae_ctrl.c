@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <string.h>
 #include "isp_alg.h"
 #include "isp_ae_alg_v00.h"
 #include "isp_com.h"
@@ -391,7 +392,7 @@ static uint32_t _isp_ae_proc(uint32_t handler_id, int32_t cur_index, int32_t cur
 			ae_param_ptr->callback(handler_id, ISP_CALLBACK_EVT|ISP_AE_CHG_CALLBACK, (void*)&ae_stab, sizeof(uint32_t));
 			ae_param_ptr->ae_get_change=ISP_UEB;
 		}
-	} else if ((ae_param_ptr->cur_index ==cur_index) && (abs(ae_param_ptr->cur_lum - cur_lum) < 8)){
+	} else if ((ae_param_ptr->cur_index ==cur_index) && (abs((int32_t)ae_param_ptr->cur_lum - cur_lum) < 8)){
 		ae_param_ptr->cur_skip_num=ae_param_ptr->skip_frame;
 		ae_param_ptr->ae_set_eb=ISP_UEB;
 		ae_param_ptr->monitor_bypass=ISP_UEB;

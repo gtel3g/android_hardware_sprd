@@ -98,6 +98,16 @@ LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_CFLAGS := -fno-strict-aliasing -D_VSP_ -DJPEG_ENC -D_VSP_LINUX_ -DCHIP_ENDIAN_LITTLE -DCONFIG_CAMERA_2M -DANDROID_4100 -Wno-typedef-redefinition -Wno-unused-parameter -D_GNU_SOURCE
 
+LOCAL_CFLAGS += \
+	-Wno-error=unused-variable \
+	-Wno-error=enum-conversion \
+	-Wno-error=incompatible-pointer-types \
+	-Wno-error=unused-function \
+	-Wno-error=unused-label \
+	-Wno-error=macro-redefined \
+	-Wno-error=gnu-designator
+
+
 ifeq ($(strip $(TARGET_BOARD_PLATFORM)),scx15)
 LOCAL_CFLAGS += -DCONFIG_CAMERA_SMALL_PREVSIZE
 endif
@@ -317,7 +327,8 @@ LOCAL_SHARED_LIBRARIES := \
 	liblog \
 	libmemoryheapion \
 	libui \
-	libgui
+	libgui \
+	libm
 
 ifeq ($(strip $(TARGET_BOARD_CAMERA_FACE_DETECT)),true)
 LOCAL_SHARED_LIBRARIES += libface_finder

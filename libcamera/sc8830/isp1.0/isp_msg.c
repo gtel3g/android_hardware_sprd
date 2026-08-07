@@ -179,7 +179,7 @@ int isp_msg_queue_destroy(cmr_handle queue_handle)
 	struct isp_msg_cxt *msg_cxt = (struct isp_msg_cxt*)queue_handle;
 	uint32_t 		   handler_id = 0;
 
-	ISP_LOG("queue_handle 0x%x", queue_handle);
+	ISP_LOG("queue_handle %p", (void *)queue_handle);
 
 	if (0 == queue_handle) {
 		ISP_LOG("zero queue_handle");

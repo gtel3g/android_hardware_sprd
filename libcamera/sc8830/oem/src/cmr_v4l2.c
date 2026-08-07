@@ -16,6 +16,8 @@
 #define LOG_TAG "cmr_v4l2"
 
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>

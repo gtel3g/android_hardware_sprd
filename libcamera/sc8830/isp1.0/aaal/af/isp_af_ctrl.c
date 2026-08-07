@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <string.h>
 #include "isp_com.h"
 #include "isp_alg.h"
 #include "isp_af_alg_v03.h"

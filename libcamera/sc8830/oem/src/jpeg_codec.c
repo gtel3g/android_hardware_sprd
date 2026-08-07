@@ -21,6 +21,7 @@
 #include "jpegenc_api.h"
 
 /*#define JPEG_CODE_DEBUG*/
+#undef LOG_TAG
 #define LOG_TAG "jpeg_codec"
 
 #define JPEG_MSG_QUEUE_SIZE                   40

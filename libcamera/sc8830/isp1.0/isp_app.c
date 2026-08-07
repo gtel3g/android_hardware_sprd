@@ -544,7 +544,7 @@ static int32_t _isp_AppSetStatus(uint32_t status)
 {
 	int32_t rtn = ISP_APP_SUCCESS;
 	struct isp_app_system* isp_system_ptr = ispAppGetSystem();
-	ALOGE("system=0x%x", isp_system_ptr);
+	ALOGE("system=%p", (void *)isp_system_ptr);
 	isp_system_ptr->isp_status = status;
 
 	return rtn;
@@ -577,7 +577,7 @@ static int32_t _isp_set_app_init_param(uint32_t handler_id, struct isp_init_para
 	isp_context_ptr->ctrl_callback = ptr->ctrl_callback;
 	ptr->ctrl_callback = _isp_AppCtrlCallback;
 	isp_context_ptr->oem_handle = (cmr_handle)ptr->oem_handle;
-	ISP_LOG("isp_context_ptr->oem_handle =0x%lx",(isp_context_ptr->oem_handle));
+	ISP_LOG("isp_context_ptr->oem_handle =%p", isp_context_ptr->oem_handle);
 
 	return rtn;
 }

@@ -50,12 +50,19 @@ int32_t isp_ae_set_alg(uint32_t handler_id, uint32_t mode);
 int32_t isp_ae_set_ev(uint32_t handler_id, int32_t ev);
 uint32_t isp_ae_set_flash_exposure_gain(uint32_t handler_id);
 uint32_t isp_ae_set_denoise(uint32_t handler_id, uint32_t level);
+int32_t isp_ae_set_denoise_diswei(uint32_t handler_id, uint32_t level);
+int32_t isp_ae_set_denoise_ranwei(uint32_t handler_id, uint32_t level);
+int32_t isp_ae_set_stab_ext(uint32_t handler_id, uint32_t eb);
 int32_t isp_ae_set_denosie_level(uint32_t handler_id, uint32_t level);
 int32_t isp_ae_get_denosie_level(uint32_t handler_id, uint32_t* level);
 int32_t isp_ae_set_denosie_diswei_level(uint32_t handler_id, uint32_t level);
 int32_t isp_ae_get_denosie_diswei_level(uint32_t handler_id, uint32_t* level);
 int32_t isp_ae_set_denosie_ranwei_level(uint32_t handler_id, uint32_t level);
 int32_t isp_ae_get_denosie_ranwei_level(uint32_t handler_id, uint32_t *level);
+int32_t isp_ae_set_index(uint32_t handler_id, uint32_t index);
+uint32_t isp_get_cur_lum(uint32_t handler_id,
+                         uint32_t *cur_lum,
+                         uint32_t rgb);
 int32_t isp_ae_save_iso(uint32_t handler_id, uint32_t iso);
 uint32_t isp_ae_get_save_iso(uint32_t handler_id);
 int32_t isp_ae_set_iso(uint32_t handler_id, uint32_t iso);

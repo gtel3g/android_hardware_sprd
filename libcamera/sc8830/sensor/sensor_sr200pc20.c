@@ -1599,7 +1599,7 @@ LOCAL uint32_t SR200PC20_InitExt(uint32_t param)	//wujinyou, 2012.11.14
 		regTab.burst_mode			= 7;
 		regTab.sensor_reg_tab_ptr 	= sensor_reg_tab_info_ptr->sensor_reg_tab_ptr;
 
-		ret = _Sensor_Device_WriteRegTab(&regTab);
+		ret = Sensor_Device_WriteRegTab(&regTab);
 	}
 
 	timestamp_new = systemTime(CLOCK_MONOTONIC);
@@ -3171,7 +3171,7 @@ LOCAL uint32_t sensor_tflash_debug(char* filename)
 		regTab.burst_mode			= 7;
 		regTab.sensor_reg_tab_ptr 	= (SENSOR_REG_T_PTR)p_reg_val_tmp;
 
-		_Sensor_Device_WriteRegTab(&regTab);
+		Sensor_Device_WriteRegTab(&regTab);
 	}
 
 	fclose(file);

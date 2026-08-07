@@ -16,6 +16,7 @@
 
 #define LOG_TAG "isp_ctrl"
 
+#include <math.h>
 #include <sys/types.h>
 #include "isp_app.h"
 #include "isp_com.h"
@@ -124,6 +125,10 @@ static int32_t _ispAwbCorrect(uint32_t handler_id);
 static int _isp_proc_msg_post(struct isp_msg *message);
 static int32_t _ispSetV00010001Param(uint32_t handler_id,struct isp_cfg_param* param_ptr);
 static int32_t _ispSetV0001Param(uint32_t handler_id,struct isp_cfg_param* param_ptr);
+int32_t _ispAlgIOCtrl(uint32_t handler_id, void *param_ptr,
+                      int (*call_back)());
+int32_t _ispFlashEGIOCtrl(uint32_t handler_id, void *param_ptr,
+                          int (*call_back)());
 
 /**---------------------------------------------------------------------------*
 **				Local Variables 					*
@@ -8332,7 +8337,7 @@ static int32_t _ispFlashNoticeIOCtrl(uint32_t handler_id, void* param_ptr, int(*
 	struct isp_alg alg_param;
 
 	if (NULL == flash_notice) {
-		ISP_LOG("$LHC:notice %p is NULL error", handler_id, flash_notice);
+		ISP_LOG("$LHC:handler_id %u notice %p is NULL error", handler_id, (void *)flash_notice);
 		return ISP_PARAM_NULL;
 	}
 
@@ -8401,7 +8406,7 @@ int32_t _ispFlashAdjustIOCtrl(uint32_t handler_id, void* param_ptr, int(*call_ba
 	struct isp_alg alg_param;
 
 	if (NULL == flash_notice) {
-		ISP_LOG("$LHC:notice %p is NULL error", handler_id, flash_notice);
+		ISP_LOG("$LHC:handler_id %u notice %p is NULL error", handler_id, (void *)flash_notice);
 		return ISP_PARAM_NULL;
 	}
 
@@ -10324,7 +10329,7 @@ int isp_ctrl_video_start(uint32_t handler_id, struct isp_video_start* param_ptr)
 	isp_msg.alloc_flag=0x01;
 	isp_msg.handler_id = handler_id;
 	isp_msg.msg_type = ISP_CTRL_EVT_CONTINUE;
-	isp_msg.sub_msg_type;
+	isp_msg.sub_msg_type = 0;
 	isp_msg.respond = (void*)(&respond);
 	//isp_msg.data=(void*)param_ptr;
 
@@ -10370,7 +10375,7 @@ int isp_ctrl_video_stop(uint32_t handler_id)
 
 	isp_msg.handler_id = handler_id;
 	isp_msg.msg_type = ISP_CTRL_EVT_CONTINUE_STOP;
-	isp_msg.sub_msg_type;
+	isp_msg.sub_msg_type = 0;
 	isp_msg.data=NULL;
 	isp_msg.alloc_flag=0x00;
 	isp_msg.respond = (void*)(&respond);
@@ -10403,11 +10408,11 @@ int isp_proc_param_trace(uint32_t handler_id, struct ips_in_param* ptr)
 
 	ISP_LOG("src image_format 0x%x", ptr->src_frame.img_fmt);
 	ISP_LOG("src img_size: %d, %d", ptr->src_frame.img_size.w, ptr->src_frame.img_size.h);
-	ISP_LOG("src addr:0x%x", ptr->src_frame.img_addr_phy.chn0);
+	ISP_LOG("src addr:0x%lx", (unsigned long)ptr->src_frame.img_addr_phy.chn0);
 
 	ISP_LOG("dst image_format 0x%x", ptr->dst_frame.img_fmt);
 	ISP_LOG("dst img_size: %d, %d", ptr->dst_frame.img_size.w, ptr->dst_frame.img_size.h);
-	ISP_LOG("dst addr:y=0x%x, uv=0x%x", ptr->dst_frame.img_addr_phy.chn0, ptr->dst_frame.img_addr_phy.chn1);
+	ISP_LOG("dst addr:y=0x%lx, uv=0x%lx", (unsigned long)ptr->dst_frame.img_addr_phy.chn0, (unsigned long)ptr->dst_frame.img_addr_phy.chn1);
 
 	ISP_LOG("src_avail_height:%d", ptr->src_avail_height);
 	ISP_LOG("src_slice_height:%d", ptr->src_slice_height);
@@ -10439,7 +10444,7 @@ int isp_ctrl_proc_start(uint32_t handler_id, struct ips_in_param* in_param_ptr, 
 
 	isp_msg.handler_id = handler_id;
 	isp_msg.msg_type = ISP_CTRL_EVT_SIGNAL;
-	isp_msg.sub_msg_type;
+	isp_msg.sub_msg_type = 0;
 	isp_msg.data = malloc(sizeof(struct ips_in_param));
 	memcpy(isp_msg.data, in_param_ptr, sizeof(struct ips_in_param));
 	isp_msg.alloc_flag=0x01;
@@ -10479,7 +10484,7 @@ int isp_ctrl_proc_next(uint32_t handler_id, struct ipn_in_param* in_ptr, struct 
 
 	isp_msg.handler_id = handler_id;
 	isp_msg.msg_type = ISP_CTRL_EVT_SIGNAL_NEXT;
-	isp_msg.sub_msg_type;
+	isp_msg.sub_msg_type = 0;
 	isp_msg.data = malloc(sizeof(struct ipn_in_param));
 	memcpy(isp_msg.data, in_ptr, sizeof(struct ipn_in_param));
 	isp_msg.alloc_flag=0x01;

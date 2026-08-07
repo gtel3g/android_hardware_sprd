@@ -15,6 +15,7 @@
  */
 #define LOG_TAG "isp_alg"
 
+#include "isp_ae_ctrl.h"
 #include "isp_com.h"
 #include "isp_alg.h"
 #include "aaa_log.h"

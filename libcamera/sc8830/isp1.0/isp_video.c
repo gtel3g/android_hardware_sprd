@@ -109,7 +109,7 @@ static int sock_fd=0;
 static int rx_packet_len=0;
 static int rx_packet_total_len=0;
 int sequence_num = 0;
-struct camera_func s_camera_fun = { PNULL };
+struct camera_func s_camera_fun = {0};
 struct camera_func* s_camera_fun_ptr=&s_camera_fun;
 
 struct camera_func* ispvideo_GetCameraFunc(void)
@@ -925,7 +925,7 @@ static void * ispserver_thread(void *args)
 #endif
 	pthread_t tdiag;
 	pthread_attr_t attr;
-	args = args;
+	(void)args;
 
 	DBG("ISP_TOOL:isp-video server version 1.0\n");
 
@@ -1111,5 +1111,5 @@ void startispserver()
 
 void validispserver(int32_t valid)
 {
-	valid = valid;
+	(void)valid;
 }

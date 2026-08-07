@@ -45,6 +45,9 @@ extern	 "C"
 #define SENSOR_Sleep(ms)                              usleep(ms*1000)
 #define SENSOR_MEMSET                                 memset
 
+#ifdef BOOLEAN
+#undef BOOLEAN
+#endif
 #define BOOLEAN                                       cmr_u32
 #define PNULL                                         ((void *)0)
 #define LOCAL                                         static
@@ -835,6 +838,7 @@ cmr_int sensor_open_common(struct sensor_drv_context *sensor_cxt, cmr_u32 sensor
 cmr_int sensor_close_common(struct sensor_drv_context *sensor_cxt, cmr_u32 sensor_id);
 
 void sensor_set_cxt_common(struct sensor_drv_context *sensor_cxt);
+void *sensor_get_dev_cxt(void);
 
 cmr_int sensor_set_mode_common(struct sensor_drv_context *sensor_cxt, cmr_uint mode);
 

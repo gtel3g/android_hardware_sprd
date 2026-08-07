@@ -153,6 +153,7 @@ struct isp_fetch_param{
 int32_t isp_ae_get_real_gain(uint32_t gain);
 int32_t isp_ae_fast_smart_adjust(uint32_t handler_id, int32_t cur_ev, uint32_t eb);
 int32_t isp_ae_stab_smart_adjust(uint32_t handler_id, int32_t cur_ev);
+int32_t isp_adjust_switch_denoise(uint32_t handler_id, int is_single);
 int32_t isp_get_denoise_tab(uint32_t de_level, uint8_t** diswei, uint8_t** ranwei);
 int32_t isp_get_denoise_tab_diswei(uint32_t de_level, uint8_t** diswei);
 int32_t isp_get_denoise_tab_ranwei(uint32_t de_level, uint8_t** ranwei);

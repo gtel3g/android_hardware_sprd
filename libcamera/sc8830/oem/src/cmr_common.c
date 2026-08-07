@@ -15,6 +15,8 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 #include "cmr_common.h"
 
 #define CAMERA_ZOOM_LEVEL_MAX                 16

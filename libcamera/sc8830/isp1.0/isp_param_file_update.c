@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include "isp_param_file_update.h"
 /**---------------------------------------------------------------------------*
  **				Compiler Flag					*
@@ -42,7 +43,7 @@ extern "C"
 
 struct isp_raw_info_update_status
 {
-	unsigned long updata_file_time;
+	time_t updata_file_time;
 	struct sensor_raw_fix_info *fix_info_table_addr;
 	uint8_t *tune_info_table_addr;
 	uint8_t *ae_weight_table_addr;
@@ -163,7 +164,7 @@ uint32_t isp_raw_para_update_from_file(SENSOR_INFO_T *sensor_info_ptr,SENSOR_ID_
 	uint8_t *temp_buf_8 = PNULL;
 	uint16_t *temp_buf_16 = PNULL;
 	uint32_t *temp_buf_32 = PNULL;
-	int tune_info_need_param_num = 0;
+	uint32_t tune_info_need_param_num = 0;
 	struct stat file_status;
 
 	if(SENSOR_IMAGE_FORMAT_RAW != sensor_info_ptr->image_format){

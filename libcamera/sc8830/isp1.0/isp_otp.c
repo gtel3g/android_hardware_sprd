@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <string.h>
 
 #define LOG_TAG "isp_otp"
 #include <cutils/log.h>
@@ -226,7 +227,7 @@ int send_otp_data_to_isp(uint32_t start_addr, uint32_t data_size, uint8_t *data_
 	uint8_t *dst = &s_isp_otp_src_data[0];
 	SENSOR_VAL_T  val ;
 	SENSOR_OTP_PARAM_T param_ptr;
-	uint32_t otp_start_addr_emprty =-1;
+	int32_t otp_start_addr_emprty = -1;
 
 	SCI_Trace_Dcam("%s data_size =%d ",__func__,data_size);
 
@@ -238,7 +239,7 @@ int send_otp_data_to_isp(uint32_t start_addr, uint32_t data_size, uint8_t *data_
 	}
 
 	//initial s_isp_otp_src_data array
-	for (i = 0 ; i < data_size ; i++) {
+	for (i = 0; i < (int)data_size; i++) {
 		*dst++ = *data_buf++;
 	}
 
@@ -249,7 +250,7 @@ int send_otp_data_to_isp(uint32_t start_addr, uint32_t data_size, uint8_t *data_
 #ifdef OTP_DATA_TESTLOG
 	if(start_addr == 0){
 		SCI_Trace_Dcam("%s:addr 0x%x cnt %d",__func__, otp_start_addr, otp_data_len);
-		for ( j = 0; j < otp_data_len; j++){
+		for (j = 0; j < (int)otp_data_len; j++) {
 			SCI_Trace_Dcam("%s data_buf[%d] =0x%02x ",__func__,j,s_isp_otp_src_data[j]);
 		}
 		//find if it is exist
@@ -264,18 +265,18 @@ int send_otp_data_to_isp(uint32_t start_addr, uint32_t data_size, uint8_t *data_
 
 			if(memcmp(s_isp_otp_rec_data,s_isp_otp_src_data,otp_data_len)==0){//already exist now
 				otp_data_offset = otp_start_addr;
-				SCI_Trace_Dcam("find area:addr 0x%x cnt %d",__func__, otp_start_addr, otp_data_len);
+				SCI_Trace_Dcam("%s: find area:addr 0x%x cnt %u", __func__, otp_start_addr, otp_data_len);
 				return 0;
 			}
 
-			for ( j = 0; otp_start_addr_emprty==-1 && j < otp_data_len; j++){
+			for (j = 0; otp_start_addr_emprty == -1 && j < (int)otp_data_len; j++) {
 				if(s_isp_otp_rec_data[j]!=0){
 					break;
 				}
 			}
-			if(j >= otp_data_len){
+			if (j >= (int)otp_data_len) {
 				otp_start_addr_emprty = otp_start_addr;
-				SCI_Trace_Dcam("first empty area:addr 0x%x cnt %d",__func__, otp_start_addr, otp_data_len);
+				SCI_Trace_Dcam("%s: first empty area:addr 0x%x cnt %u", __func__, otp_start_addr, otp_data_len);
 			}
 
 			otp_start_addr+=otp_data_len;
@@ -315,7 +316,7 @@ int send_otp_data_to_isp(uint32_t start_addr, uint32_t data_size, uint8_t *data_
 	}while((ret!=0) && (i++ < 1));
 
 #ifdef OTP_DATA_TESTLOG
-	for ( j = 0; j < otp_data_len; j++)
+	for (j = 0; j < (int)otp_data_len; j++)
 	{
 		SCI_Trace_Dcam("%s data_buf[%d] =0x%02x ",__func__,j,s_isp_otp_rec_data[j]);
 	}
@@ -332,7 +333,7 @@ int write_otp_calibration_data( uint32_t data_size, uint8_t *data_buf)
 	int addr = 0;
 	uint8_t *log_ptr = data_buf;
 
-/*	while(index < data_size)  {
+/*	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}*/
 	memcpy_ex(4,&otp_data_len,&data_buf[0],4);
@@ -531,7 +532,7 @@ int write_otp_ctrl_param( uint32_t data_size, uint8_t *data_buf)
 	int index = 0;
 	uint8_t *log_ptr = data_buf;
 
-	while(index < data_size)  {
+	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}
 
@@ -629,7 +630,7 @@ int write_otp_actuator_i2c( uint32_t data_size, uint8_t *data_buf)
 	SENSOR_VAL_T  io_val ={SENSOR_VAL_TYPE_WRITE_VCM, NULL};
 	uint32_t param;
 
-	while(index < data_size)  {
+	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}
 	memcpy_ex(4,&otp_data_len,&data_buf[0],4);
@@ -670,7 +671,7 @@ int write_otp_sensor_i2c( uint32_t data_size, uint8_t *data_buf)
 	uint8_t *read_ptr ;
 	uint32_t reg_val = 0;
 
-	while(index < data_size)  {
+	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}
 	memcpy_ex(4,&otp_data_len,&data_buf[0],4);
@@ -703,7 +704,7 @@ int write_otp_rom_data( uint32_t data_size, uint8_t *data_buf)
 	int index = 0;
 	uint8_t *log_ptr = data_buf;
 
-	while(index < data_size)  {
+	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}
 
@@ -813,7 +814,7 @@ int isp_otp_needstopprev(uint8_t *data_buf, uint32_t *data_size)//DATA
 		break;
 
 	default:
-		SCI_Trace_Dcam("%s:other,otp_type=%d \n",__func__);
+		SCI_Trace_Dcam("%s:other,otp_type=%d \n", __func__, otp_type);
 		break;
 	}
 
@@ -892,7 +893,7 @@ int isp_otp_write(uint8_t *data_buf, uint32_t *data_size)//DATA
 		}
 		break;
 	default:
-		SCI_Trace_Dcam("%s:error,otp_type=%d \n",__func__);
+		SCI_Trace_Dcam("%s:error,otp_type=%d \n", __func__, otp_type);
 		break;
 	}
 
@@ -900,7 +901,7 @@ int isp_otp_write(uint8_t *data_buf, uint32_t *data_size)//DATA
 	SCI_Trace_Dcam("data_size= %d \r\n", *data_size);
 
 
-/*	while(index < data_size)  {
+/*	while (index < (int)data_size)  {
 	      SCI_Trace_Dcam ("%s data_buf[%.3d]= %.2x\n", __func__, index++, *log_ptr++);
 	}
 */
@@ -1417,7 +1418,7 @@ int isp_otp_read(uint8_t *data_buf, uint32_t *data_size)//DATA
 		ret = read_otp_rom_data(data_size, data_buf);
 		break;
 	 default:
-		SCI_Trace_Dcam("%s:error,otp_type=%d \n",__func__);
+		SCI_Trace_Dcam("%s:error,otp_type=%d \n", __func__, otp_type);
 		break;
 	 }
 

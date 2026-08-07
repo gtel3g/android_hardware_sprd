@@ -67,7 +67,7 @@ int isp_app_msg_get(cmr_handle queue_handle, struct isp_app_msg *message)
 	ISP_APP_MSG_CHECK_MSG_MAGIC(queue_handle);
 	sem_wait(&msg_cxt->msg_sem);
 	pthread_mutex_lock(&msg_cxt->mutex);
-	ALOGV("read=0x%x  write=0x%x head=0x%x cnt=%d", msg_cxt->msg_read, msg_cxt->msg_write, msg_cxt->msg_head, msg_cxt->msg_count);
+	ALOGV("read=%p write=%p head=%p cnt=%d", (void *)msg_cxt->msg_read, (void *)msg_cxt->msg_write, (void *)msg_cxt->msg_head, msg_cxt->msg_count);
 	if (msg_cxt->msg_read != msg_cxt->msg_write) {
 		*message = *msg_cxt->msg_read++;
 		if (msg_cxt->msg_read > msg_cxt->msg_head + msg_cxt->msg_count - 1) {
@@ -85,6 +85,7 @@ int isp_app_msg_post(cmr_handle queue_handle, struct isp_app_msg *message)
 {
 	struct isp_app_msg_cxt* msg_cxt = (struct isp_app_msg_cxt*)queue_handle;
 	struct isp_app_msg* ori_node = NULL;
+	int sem_value = 0;
 
 	//CMR_LOGI("queue_handle 0x%x, msg type 0x%x ", queue_handle, message->msg_type);
 
@@ -96,7 +97,12 @@ int isp_app_msg_post(cmr_handle queue_handle, struct isp_app_msg *message)
 	ISP_APP_MSG_CHECK_MSG_MAGIC(queue_handle);
 
 	pthread_mutex_lock(&msg_cxt->mutex);
-	ALOGE("write=0x%x head=0x%x cnt=%d sem=%d", ori_node, msg_cxt->msg_head, msg_cxt->msg_count, msg_cxt->msg_sem);
+		sem_getvalue(&msg_cxt->msg_sem, &sem_value);
+	ALOGE("write=%p head=%p cnt=%d sem=%d",
+	      (void *)ori_node,
+	      (void *)msg_cxt->msg_head,
+	      msg_cxt->msg_count,
+	      sem_value);
 	*msg_cxt->msg_write++ = *message;
 	if (msg_cxt->msg_write > msg_cxt->msg_head + msg_cxt->msg_count - 1) {
 		msg_cxt->msg_write = msg_cxt->msg_head;
