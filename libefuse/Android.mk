@@ -21,6 +21,7 @@ LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES:= liblog libc libcutils
 
 LOCAL_C_INCLUDES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
+LOCAL_CFLAGS += -Wno-error=unused-variable -Wno-error=pointer-sign
 
 LOCAL_MODULE_TAGS:= optional
 
@@ -45,6 +46,7 @@ LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES:= liblog libc libcutils
 
 LOCAL_C_INCLUDES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
+LOCAL_CFLAGS += -Wno-error=unused-variable -Wno-error=pointer-sign
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)
 

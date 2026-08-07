@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <string.h>
 
 #include <cutils/log.h>
 #include <cutils/atomic.h>
@@ -93,10 +94,8 @@ static int gralloc_register_buffer(gralloc_module_t const *module, buffer_handle
 	}
 	else if (hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION)
 	{
-		int ret;
 		unsigned char *mappedAddress;
 		size_t size = hnd->size;
-		hw_module_t *pmodule = NULL;
 		private_module_t *m = NULL;
 		m = (private_module_t*)module;
 		/* the test condition is set to m->ion_client <= 0 here, because:
@@ -284,9 +283,6 @@ static int gralloc_unlock(gralloc_module_t const* module, buffer_handle_t handle
 	}
 
 	private_handle_t *hnd = (private_handle_t *)handle;
-	int32_t current_value;
-	int32_t new_value;
-	int retry;
 
 	if ( hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION && hnd->writeOwner)
 	{
@@ -383,10 +379,8 @@ static int gralloc_perform(struct gralloc_module_t const* module,
 
 // There is one global instance of the module
 
-static struct hw_module_methods_t gralloc_module_methods =
-{
-open:
-	gralloc_device_open
+static struct hw_module_methods_t gralloc_module_methods = {
+    .open = gralloc_device_open,
 };
 
 private_module_t::private_module_t()

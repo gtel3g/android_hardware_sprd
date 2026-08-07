@@ -271,7 +271,7 @@ int efuse_uid_read(unsigned char *uid, int count)
 	if ((0 == uid) || (count < 1))
 		return -1;
 
-	len = MIN(count, sizeof(values));
+	len = MIN(count, (int)sizeof(values));
 	for (i = UID_BLOCK_START; i <= UID_BLOCK_END; i++) {
 		ret = efuse_read(i, &values[(i - UID_BLOCK_START) * 8]);
 		if (ret <= 0) {

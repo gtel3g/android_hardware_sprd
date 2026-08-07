@@ -85,7 +85,7 @@ uint32_t dither_open(uint32_t w, uint32_t h)
 		fp = fopen("/sys/module/mali/parameters/gpu_cur_freq", "r");
 		if(fp == NULL)
 		{
-			AERR( "can not open /sys/module/mali/parameters/gpu_cur_freq %x", fp);
+			AERR("can not open /sys/module/mali/parameters/gpu_cur_freq %p", (void *)fp);
 			free (dither);
 			dither = NULL;
 			return 0;
@@ -121,12 +121,12 @@ uint32_t dither_open(uint32_t w, uint32_t h)
 
 void dither_close(uint32_t handle)
 {
-	if (NULL != handle)
+	if (handle != 0)
 	{
 		struct dither_info *dither = (struct dither_info *)handle;
 
 		img_dither_deinit(dither->alg_handle);
-		dither->alg_handle = NULL;
+		dither->alg_handle = 0;
 		if(dither->fp) {
 			fclose(dither->fp);
 		}
@@ -147,21 +147,6 @@ static int fb_set_swap_interval(struct framebuffer_device_t *dev, int interval)
 	}
 
 	swapInterval = interval;
-
-	return 0;
-}
-
-static int fb_setUpdateRect(struct framebuffer_device_t* dev,
-        int l, int t, int w, int h)
-{
-	if (((w|h) <= 0) || ((l|t)<0))
-		return -EINVAL;
-
-	private_module_t* m = reinterpret_cast<private_module_t*>(
-		dev->common.module);
-	m->info.reserved[0] = 0x6f766572; // "UPDT";
-	m->info.reserved[1] = (uint16_t)l | ((uint32_t)t << 16);
-	m->info.reserved[2] = (uint16_t)w | ((uint32_t)h << 16);
 
 	return 0;
 }
@@ -221,7 +206,7 @@ static bool fb_is_dither_enable(struct dither_info *dither, private_handle_t con
 
 	if(fp == NULL)
 	{
-		AERR( "can not open /sys/module/mali/parameters/gpu_cur_freq %x", fp);
+		AERR("can not open /sys/module/mali/parameters/gpu_cur_freq %p", (void *)fp);
 	}
 	else
 	{
@@ -305,7 +290,6 @@ static int fb_post(struct framebuffer_device_t* dev, buffer_handle_t buffer)
 		             0, 0, m->info.xres, m->info.yres, NULL);
 
 		const size_t offset = (uintptr_t)hnd->base - (uintptr_t)m->framebuffer->base;
-		int interrupt;
 		m->info.activate = FB_ACTIVATE_VBL;
 		m->info.yoffset = offset / m->finfo.line_length;
 
@@ -718,7 +702,6 @@ static int fb_close(struct hw_device_t *device)
 
 #ifdef SPRD_DITHER_ENABLE
 	if (dev->reserved[6]) {
-		int ret = 0;
 		dither_close(dev->reserved[6]);
 		dev->reserved[6] = 0;
 		AINF("dither close ID %i\n", 1);

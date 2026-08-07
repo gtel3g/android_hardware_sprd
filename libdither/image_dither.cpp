@@ -846,7 +846,7 @@ static void dither_four_block(uint32_t *src_ptr[4], uint16_t *offset_tbl[4])
     uint32_t mask[4] = {0xfff8fcf8, 0xfff8fcf8, 0xfff8fcf8, 0xfff8fcf8};
 
     uint8x16_t  v_src_u8x16;
-    uint32x4_t  v_src_u32x4;
+    uint32x4_t  v_src_u32x4 = vdupq_n_u32(0);
 
     uint16x8_t  v_src_low_u16x8;
     uint16x8_t  v_src_high_u16x8;

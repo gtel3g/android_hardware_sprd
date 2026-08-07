@@ -50,6 +50,9 @@ LOCAL_MODULE := libstagefrighthw
 
 LOCAL_PROPRIETARY_MODULE := true
 
-LOCAL_CFLAGS:= -DLOG_TAG=\"$(TARGET_BOARD_PLATFORM).libstagefright\"
+# Legacy SPRD OMX headers conflict with Pie bionic FORTIFY.
+# Sources provide their own LOG_TAG definitions.
+LOCAL_CFLAGS += \
+    -Wno-error=unused-parameter
 
 include $(BUILD_SHARED_LIBRARY)

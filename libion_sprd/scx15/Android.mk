@@ -19,6 +19,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
+LOCAL_CFLAGS += -Wno-error=unused-variable
+
 LOCAL_MODULE := libion_sprd
 
 LOCAL_PROPRIETARY_MODULE := true
@@ -50,6 +52,8 @@ LOCAL_POST_INSTALL_CMD := \
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+
+LOCAL_CFLAGS += -Wno-error=unused-variable
 
 LOCAL_MODULE := iontest_sprd
 

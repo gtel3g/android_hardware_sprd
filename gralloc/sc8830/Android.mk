@@ -49,6 +49,8 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_STATIC_LIBRARIES := \
 	libarect
 
+LOCAL_CFLAGS += -Wno-error=unused-variable
+
 ifeq ($(TARGET_USES_GRALLOC1), true)
 LOCAL_STATIC_LIBRARIES += \
 	libgralloc1-adapter

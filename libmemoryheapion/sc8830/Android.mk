@@ -47,6 +47,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libutils
 
 LOCAL_CFLAGS += -Wno-conversion
+LOCAL_CFLAGS += -Wno-error=unused-variable
 
 ifeq ($(TARGET_UPDATED_MALI),true)
 LOCAL_CFLAGS += -DUPDATED_MALI

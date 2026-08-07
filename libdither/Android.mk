@@ -34,6 +34,10 @@ LOCAL_CFLAGS = \
 	-g \
 	-mfpu=neon \
 	-O3 \
+	-Wno-error=unused-variable \
+	-Wno-error=unused-parameter \
+	-Wno-error=unused-but-set-variable \
+	-Wno-error=sign-compare \
 
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH) \

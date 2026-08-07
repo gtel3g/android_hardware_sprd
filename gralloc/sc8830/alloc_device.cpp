@@ -290,7 +290,6 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 	}
 	else
 	{
-		int align = 8;
 		int bpp = 0;
 
 		switch (format)
