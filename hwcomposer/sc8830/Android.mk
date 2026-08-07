@@ -218,6 +218,15 @@ LOCAL_CFLAGS += -DSPRD_DITHER_ENABLE
 endif
 
 LOCAL_MODULE_TAGS := optional
+
+# Compatibility with newer Clang
+LOCAL_CPPFLAGS += \
+    -Wno-error \
+    -Wno-unused-variable \
+    -Wno-unused-parameter \
+    -Wno-unused-private-field \
+    -Wno-gnu-designator
+
 include $(BUILD_SHARED_LIBRARY)
 
 endif
