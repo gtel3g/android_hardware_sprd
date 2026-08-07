@@ -27,7 +27,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/foundation/hexdump.h>
-#include <media/MediaDefs.h>
+#include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
 
 namespace android {
@@ -47,29 +47,29 @@ SPRDAACDecoder::SPRDAACDecoder(
         OMX_PTR appData,
         OMX_COMPONENTTYPE **component)
     : SprdSimpleOMXComponent(name, callbacks, appData, component),
-       mIsADTS(false),
-       mIsLATM(false),
-       mDecoderBuf(NULL),
-       mProfile (0),
-       mFrameSize(0),
-       mChannels(1),
-       mSamplingRate(44100),
-       mSeekFlag(false),
-       mSpecialData(NULL),
-       mSpecialDataLen(0),
+      mIsADTS(false),
+      mIsLATM(false),
+      mDecoderBuf(NULL),
+      mProfile(0),
+      mFrameSize(0),
+      mChannels(1),
+      mSamplingRate(44100),
       mPcm_out_l(NULL),
       mPcm_out_r(NULL),
+      mSeekFlag(false),
+      mSpecialData(NULL),
+      mSpecialDataLen(0),
       mInputBufferCount(0),
       mAnchorTimeUs(0),
       mNumSamplesOutput(0),
       mLibHandle(NULL),
-      mSignalledError(false),
       mAAC_MemoryFree(NULL),
       mAAC_MemoryAlloc(NULL),
       mAAC_DecInit(NULL),
       mAAC_RetrieveSampleRate(NULL),
       mAAC_FrameDecode(NULL),
       mAAC_DecStreamBufferUpdate(NULL),
+      mSignalledError(false),
       mOutputPortSettingsChange(NONE) {
     bool ret = false;
     ret = openDecoder("libomx_aacdec_sprd.so");
@@ -455,7 +455,6 @@ void SPRDAACDecoder::onQueueFilled(OMX_U32 portIndex) {
         }
     }
 
-decoding:
     while (!inQueue.empty() && !outQueue.empty()) {
         BufferInfo *inInfo = *inQueue.begin();
         OMX_BUFFERHEADERTYPE *inHeader = inInfo->mHeader;
@@ -493,7 +492,7 @@ decoding:
             bool signalError = false;
             if (inHeader->nFilledLen < 7) {
                 ALOGE("Audio data too short to contain even the ADTS header. "
-                      "Got %ld bytes.", inHeader->nFilledLen);
+                      "Got %u bytes.", inHeader->nFilledLen);
                 hexdump(adtsHeader, inHeader->nFilledLen);
                 signalError = true;
             } else {
@@ -506,7 +505,7 @@ decoding:
 
                 if (inHeader->nFilledLen < aac_frame_length) {
                     ALOGE("Not enough audio data for the complete frame. "
-                          "Got %ld bytes, frame size according to the ADTS "
+                          "Got %u bytes, frame size according to the ADTS "
                           "header is %u bytes.",
                           inHeader->nFilledLen, aac_frame_length);
                     hexdump(adtsHeader, inHeader->nFilledLen);
