@@ -48,6 +48,10 @@ LOCAL_ADDITIONAL_DEPENDENCIES += \
 
 LOCAL_MODULE_TAGS := optional
 
+# Legacy Spreadtrum GSP produces warnings with modern Clang.
+LOCAL_CFLAGS += -Wno-error
+LOCAL_CPPFLAGS += -Wno-error
+
 include $(BUILD_SHARED_LIBRARY)
 
 endif # DEVICE_WITH_GSP
