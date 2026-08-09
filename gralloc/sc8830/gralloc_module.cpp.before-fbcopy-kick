@@ -224,11 +224,7 @@ static int gralloc_lock(gralloc_module_t const *module, buffer_handle_t handle, 
 	{
 		*vaddr = (void *)hnd->base;
 		private_module_t *m = (private_module_t*)module;
-		if ((hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION) &&
-            hnd->share_fd >= 0)
-        {
-            ion_invalidate_fd(m->ion_client, hnd->share_fd);
-        }
+		ion_invalidate_fd(m->ion_client, hnd->share_fd);
 	}
 
 	MALI_IGNORE(l);

@@ -387,38 +387,42 @@ static int fb_post(struct framebuffer_device_t* dev, buffer_handle_t buffer)
 		m->base.lock(&m->base, buffer, GRALLOC_USAGE_SW_READ_RARELY,
 		             0, 0, m->info.xres, m->info.yres, &buffer_vaddr);
 
-	const size_t copySize =
-		m->finfo.line_length * m->info.yres;
+		const size_t copySize =
+                m->finfo.line_length * m->info.yres;
 
-	memcpy(fb_vaddr, buffer_vaddr, copySize);
+        memcpy(fb_vaddr, buffer_vaddr, copySize);
 
-	/*
-	 * Switch sprdfb from the preserved Samsung boot-logo buffer
-	 * to framebuffer page zero containing the copied Android frame.
-	 */
-	m->info.xoffset = 0;
-	m->info.yoffset = 0;
-	m->info.activate = FB_ACTIVATE_VBL;
-	m->info.reserved[3] = 0;
+        /*
+         * Android 9 imports the framebuffer target as an ordinary ION
+         * buffer. The legacy fallback copies it into page zero, but did
+         * not flush CPU writes or tell sprdfb to scan that page.
+         */
+        const int syncResult = msync(fb_vaddr, copySize, MS_SYNC);
+        const int syncError = syncResult < 0 ? errno : 0;
 
-	const int panResult =
-		ioctl(m->framebuffer->fd, FBIOPAN_DISPLAY, &m->info);
-	const int panError = panResult < 0 ? errno : 0;
+        m->info.xoffset = 0;
+        m->info.yoffset = 0;
+        m->info.activate = FB_ACTIVATE_VBL;
+        m->info.reserved[3] = 0;
 
-	static unsigned int panLogCount = 0;
-	if (panLogCount < 3)
-	{
-		++panLogCount;
-		ALOGE("SPRD HIDL FB pan kick #%u: dst=%p src=%p "
-		      "size=%u yoffset=%u pan=%d/%d",
-		      panLogCount,
-		      fb_vaddr,
-		      buffer_vaddr,
-		      (unsigned int)copySize,
-		      m->info.yoffset,
-		      panResult,
-		      panError);
-	}
+        const int postResult =
+                ioctl(m->framebuffer->fd, FBIOPUT_VSCREENINFO, &m->info);
+        const int postError = postResult < 0 ? errno : 0;
+
+        static bool loggedHidlFbCopy = false;
+        if (!loggedHidlFbCopy)
+        {
+            ALOGE("SPRD HIDL FB copy kick: dst=%p src=%p size=%u "
+                  "msync=%d/%d put=%d/%d",
+                  fb_vaddr,
+                  buffer_vaddr,
+                  (unsigned int)copySize,
+                  syncResult,
+                  syncError,
+                  postResult,
+                  postError);
+            loggedHidlFbCopy = true;
+        }
 
 		m->base.unlock(&m->base, buffer);
 		m->base.unlock(&m->base, m->framebuffer);

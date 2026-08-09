@@ -37,11 +37,6 @@
 
 #include "ion_sprd.h"
 
-static uint64_t next_backing_store_id()
-{
-    static std::atomic<uint64_t> next_id(1);
-    return next_id++;
-}
 
 static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage, buffer_handle_t *pHandle)
 {
@@ -149,6 +144,7 @@ static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage, buf
 	return -1;
 }
 
+#ifndef SPRD_HIDL_FB_TARGET_ION
 static int gralloc_alloc_framebuffer_locked(alloc_device_t *dev, size_t size, int usage, buffer_handle_t *pHandle)
 {
 	private_module_t *m = reinterpret_cast<private_module_t *>(dev->common.module);
@@ -227,6 +223,8 @@ static int gralloc_alloc_framebuffer(alloc_device_t *dev, size_t size, int usage
 	pthread_mutex_unlock(&m->lock);
 	return err;
 }
+
+#endif // !SPRD_HIDL_FB_TARGET_ION
 
 static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int usage, buffer_handle_t *pHandle, int *pStride)
 {
@@ -321,7 +319,27 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 
 	if (usage & GRALLOC_USAGE_HW_FB)
 	{
+#ifdef SPRD_HIDL_FB_TARGET_ION
+		/*
+		 * Android O/P uses a binderized graphics allocator.
+		 *
+		 * Legacy SPRD framebuffer handles are process-local and cannot
+		 * be transported through HIDL because the framebuffer is not
+		 * exported as dma-buf on this kernel.
+		 *
+		 * Allocate an ION-backed framebuffer target instead.
+		 * fb_post() already supports copying such a buffer to fb0.
+		 */
+		int newUsage =
+		    (usage & ~GRALLOC_USAGE_HW_FB) | GRALLOC_USAGE_HW_2D;
+
+		ALOGW("HIDL: HW_FB 0x%x -> ION usage 0x%x",
+		      usage, newUsage);
+
+		err = gralloc_alloc_buffer(dev, size, newUsage, pHandle);
+#else
 		err = gralloc_alloc_framebuffer(dev, size, usage, pHandle);
+#endif
 	}
 	else
 
@@ -377,7 +395,6 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 
 	hnd->width = w;
 	hnd->height = h;
-	hnd->backing_store = next_backing_store_id();
 	hnd->format = format;
 	hnd->stride = stride;
 

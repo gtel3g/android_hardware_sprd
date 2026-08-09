@@ -84,6 +84,8 @@ ifeq ($(SOC_SCX30G_V2),true)
 LOCAL_CFLAGS += -DSCX30G_V2
 endif
 
+LOCAL_CFLAGS += -DSPRD_HIDL_FB_TARGET_ION
+
 LOCAL_SRC_FILES := \
 	gralloc_module.cpp \
 	alloc_device.cpp \

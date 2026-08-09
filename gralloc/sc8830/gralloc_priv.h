@@ -175,11 +175,6 @@ struct private_handle_t
 #endif
 #define GRALLOC_ARM_DMA_BUF_NUM_INTS 1
 #define GRALLOC_ARM_NUM_FDS 1
-
-	uint64_t backing_store;
-	uint64_t producer_usage;
-	uint64_t consumer_usage;
-
 #ifdef __cplusplus
 	/*
 	 * We track the number of integers in the structure. There are 11 unconditional
