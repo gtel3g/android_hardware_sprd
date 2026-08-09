@@ -1170,6 +1170,16 @@ int SprdUtil::getGSPCapability(GSP_CAPABILITY_T *pGsp_cap)
                      pGsp_cap->scale_range_up,
                      pGsp_cap->blend_video_with_OSD,
                      pGsp_cap->max_layer_cnt_with_video);
+
+            /*
+             * GSP has two hardware inputs per pass. Exercise the existing
+             * multi-pass path with up to three RGB layers.
+             * Video composition capabilities remain unchanged.
+             */
+            if (pGsp_cap->max_layer_cnt == 1) {
+                ALOGW("TEST: override GSP UI max_layer_cnt 1 -> 2");
+                pGsp_cap->max_layer_cnt = 2;
+            }
             if(mGsp_cap.buf_type_support != 0) {
                 ALOGI_IF(mDebugFlag,"util[%04d] GSP_GetCapability HWC force buffer addr type to %d.",__LINE__,mGsp_cap.buf_type_support);
                 pGsp_cap->buf_type_support = mGsp_cap.buf_type_support;
