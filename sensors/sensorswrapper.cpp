@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SENSORS_LIB "/vendor/lib/sensors.vendor." BOARD_PLATFORM ".so"
+#define SENSORS_LIB "/vendor/lib/hw/sensors.vendor." BOARD_PLATFORM ".so"
 
 static pthread_mutex_t init_modules_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t init_sensors_mutex = PTHREAD_MUTEX_INITIALIZER;
