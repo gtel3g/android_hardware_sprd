@@ -510,10 +510,11 @@ OMX_ERRORTYPE SPRDMPEG4Decoder::internalGetParameter(
         } else {
             CHECK_EQ(formatParams->nPortIndex, 1u);
 
-            PortInfo *pOutPort = editPortInfo(kOutputPortIndex);
-            ALOGI("internalGetParameter, OMX_IndexParamVideoPortFormat, eColorFormat: 0x%x",pOutPort->mDef.format.video.eColorFormat);
+            /*
+             * The hardware decoder output is always YUV420SP.
+             */
             formatParams->eCompressionFormat = OMX_VIDEO_CodingUnused;
-            formatParams->eColorFormat = pOutPort->mDef.format.video.eColorFormat;
+            formatParams->eColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
             formatParams->xFramerate = 0;
         }
 
@@ -669,7 +670,16 @@ OMX_ERRORTYPE SPRDMPEG4Decoder::internalSetParameter(
 
         memcpy(&port->mDef.format.video, &defParams->format.video, sizeof(OMX_VIDEO_PORTDEFINITIONTYPE));
 
-        if(defParams->nPortIndex == 1) {
+        if (defParams->nPortIndex == kOutputPortIndex) {
+            /*
+             * The SC8830 MPEG4/H263 decoder always outputs YUV420SP.
+             * Do not let framework port negotiation overwrite the
+             * hardware output color format.
+             */
+            port->mDef.format.video.eCompressionFormat = OMX_VIDEO_CodingUnused;
+            port->mDef.format.video.eColorFormat =
+                    OMX_COLOR_FormatYUV420SemiPlanar;
+
             port->mDef.format.video.nStride = port->mDef.format.video.nFrameWidth;
             port->mDef.format.video.nSliceHeight = port->mDef.format.video.nFrameHeight;
             mWidth = port->mDef.format.video.nFrameWidth;
