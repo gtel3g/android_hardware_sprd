@@ -1,3 +1,7 @@
+# T561/gtel3g uses the stock Samsung/SPRD camera HAL through
+# device/samsung/gtel3g/camera CameraWrapper.
+ifneq ($(TARGET_DEVICE),gtel3g)
+
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -302,8 +306,8 @@ ifeq ($(strip $(TARGET_BOARD_LOW_CAPTURE_MEM)),true)
 LOCAL_CFLAGS += -DCONFIG_LOW_CAPTURE_MEM
 endif
 
-ifeq ($(TARGET_DEVICE),gtel3g)
-LOCAL_MODULE := camera.sprd.$(TARGET_BOARD_PLATFORM)
+ifeq ($(strip $(TARGET_BOARD_CAMERA_HAL_VERSION)),HAL1.0)
+LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
 else
 LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
 endif
@@ -405,3 +409,5 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)
 include $(BUILD_PREBUILT)
 endif
 endif
+
+endif # TARGET_DEVICE != gtel3g
