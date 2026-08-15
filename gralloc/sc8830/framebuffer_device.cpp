@@ -158,9 +158,9 @@ static void writeFpsToProc(float fps)
 	char fps_buf[256] = {0};
 	const char *fps_proc = "/proc/benchMark/fps";
 	int fpsInt = (int)(fps+0.5);
-	
+
 	sprintf(fps_buf, "fps:%d", fpsInt);
-	   
+
 	FILE *f = fopen(fps_proc,"r+w");
 	if (NULL != f)
 	{
@@ -169,7 +169,7 @@ static void writeFpsToProc(float fps)
 		fclose(f);
 	}
 }
-  
+
 bool gIsApctFpsShow = false;
 bool gIsApctRead  = false;
 bool getApctFpsSupport()
@@ -290,7 +290,12 @@ static int fb_post(struct framebuffer_device_t* dev, buffer_handle_t buffer)
 		m->base.lock(&m->base, buffer, private_module_t::PRIV_USAGE_LOCKED_FOR_POST,
 		             0, 0, m->info.xres, m->info.yres, NULL);
 
-		const size_t offset = (uintptr_t)hnd->base - (uintptr_t)m->framebuffer->base;
+		/*
+		 * Imported HIDL framebuffer handles are mapped at an arbitrary
+		 * virtual address.  The stored byte offset is process independent.
+		 */
+		const size_t offset = static_cast<size_t>(hnd->offset);
+
 		m->info.activate = FB_ACTIVATE_VBL;
 		m->info.yoffset = offset / m->finfo.line_length;
 
@@ -387,38 +392,23 @@ static int fb_post(struct framebuffer_device_t* dev, buffer_handle_t buffer)
 		m->base.lock(&m->base, buffer, GRALLOC_USAGE_SW_READ_RARELY,
 		             0, 0, m->info.xres, m->info.yres, &buffer_vaddr);
 
-	const size_t copySize =
-		m->finfo.line_length * m->info.yres;
 
-	memcpy(fb_vaddr, buffer_vaddr, copySize);
+		const size_t copySize =
+			m->finfo.line_length * m->info.yres;
 
-	/*
-	 * Switch sprdfb from the preserved Samsung boot-logo buffer
-	 * to framebuffer page zero containing the copied Android frame.
-	 */
-	m->info.xoffset = 0;
-	m->info.yoffset = 0;
-	m->info.activate = FB_ACTIVATE_VBL;
-	m->info.reserved[3] = 0;
+		memcpy(fb_vaddr, buffer_vaddr, copySize);
 
-	const int panResult =
+		/*
+		 * Switch sprdfb from the preserved Samsung boot-logo buffer
+		 * to framebuffer page zero containing the copied Android frame.
+		 */
+		m->info.xoffset = 0;
+		m->info.yoffset = 0;
+		m->info.activate = FB_ACTIVATE_VBL;
+		m->info.reserved[3] = 0;
+
 		ioctl(m->framebuffer->fd, FBIOPAN_DISPLAY, &m->info);
-	const int panError = panResult < 0 ? errno : 0;
 
-	static unsigned int panLogCount = 0;
-	if (panLogCount < 3)
-	{
-		++panLogCount;
-		ALOGE("SPRD HIDL FB pan kick #%u: dst=%p src=%p "
-		      "size=%u yoffset=%u pan=%d/%d",
-		      panLogCount,
-		      fb_vaddr,
-		      buffer_vaddr,
-		      (unsigned int)copySize,
-		      m->info.yoffset,
-		      panResult,
-		      panError);
-	}
 
 		m->base.unlock(&m->base, buffer);
 		m->base.unlock(&m->base, m->framebuffer);

@@ -80,7 +80,10 @@ ifeq ($(SOC_SCX30G_V2),true)
 LOCAL_CFLAGS += -DSCX30G_V2
 endif
 
+# T561: use transportable legacy framebuffer handles for zero-copy
+ifneq ($(TARGET_DEVICE),gtel3g)
 LOCAL_CFLAGS += -DSPRD_HIDL_FB_TARGET_ION
+endif
 
 LOCAL_SRC_FILES := \
 	gralloc_module.cpp \

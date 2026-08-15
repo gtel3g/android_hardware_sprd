@@ -65,19 +65,6 @@ static int gralloc_device_open(const hw_module_t* module, const char* name, hw_d
 static int gralloc_register_buffer(gralloc_module_t const *module, buffer_handle_t handle)
 {
 
-    ALOGE("SPRD REGISTER ABI: handle=%p version=%d fds=%d ints=%d "
-          "transport=%zu private_handle=%zu",
-          handle,
-          handle ? handle->version : -1,
-          handle ? handle->numFds : -1,
-          handle ? handle->numInts : -1,
-          handle
-              ? sizeof(native_handle_t) +
-                    sizeof(int) *
-                        static_cast<size_t>(
-                            handle->numFds + handle->numInts)
-              : 0,
-          sizeof(private_handle_t));
 
 	MALI_IGNORE(module);
 	if (private_handle_t::validate(handle) < 0)
@@ -89,23 +76,83 @@ static int gralloc_register_buffer(gralloc_module_t const *module, buffer_handle
 	// if this handle was created in this process, then we keep it as is.
 	private_handle_t *hnd = (private_handle_t *)handle;
 
-#ifdef ADVERTISE_GRALLOC1
-	if (hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER) {
-		return 0;
-	}
-#endif
-
 	ALOGD_IF(mDebug>1,"register buffer  handle:%p ion_hnd:0x%p",handle,hnd->ion_hnd);
 
 	int retval = -EINVAL;
 
 	pthread_mutex_lock(&s_map_lock);
 
+	const int originalPid = hnd->pid;
 	hnd->pid = getpid();
 
 	if (hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER)
 	{
-		AERR("Can't register buffer 0x%p as it is a framebuffer", handle);
+		/*
+		 * Local framebuffer handle already has a valid mapping.
+		 */
+		if (originalPid == getpid() && hnd->base != 0)
+		{
+			pthread_mutex_unlock(&s_map_lock);
+			return 0;
+		}
+
+		if (hnd->share_fd < 0 || hnd->offset < 0 || hnd->size <= 0)
+		{
+			AERR("SPRD FB IMPORT: invalid handle fd=%d offset=%d size=%d",
+			     hnd->share_fd, hnd->offset, hnd->size);
+			retval = -EINVAL;
+			goto cleanup;
+		}
+
+		/*
+		 * Map from fb0 offset zero.  This avoids depending on whether the
+		 * ancient sprdfb mmap implementation honours vm_pgoff.
+		 *
+		 * page 0 -> map 4 MB
+		 * page 1 -> map 8 MB, base += 4 MB
+		 * page 2 -> map 12 MB, base += 8 MB
+		 */
+		const size_t mapSize =
+		    static_cast<size_t>(hnd->offset) +
+		    static_cast<size_t>(hnd->size);
+
+		void *mappedBase =
+		    mmap(NULL, mapSize,
+		         PROT_READ | PROT_WRITE,
+		         MAP_SHARED,
+		         hnd->share_fd,
+		         0);
+
+		if (mappedBase == MAP_FAILED)
+		{
+			AERR("SPRD FB IMPORT mmap failed: fd=%d offset=%d "
+			     "size=%d mapSize=%zu error=%s",
+			     hnd->share_fd,
+			     hnd->offset,
+			     hnd->size,
+			     mapSize,
+			     strerror(errno));
+
+			retval = -errno;
+			goto cleanup;
+		}
+
+		hnd->base =
+		    reinterpret_cast<void *>(
+		        reinterpret_cast<uintptr_t>(mappedBase) +
+		        static_cast<uintptr_t>(hnd->offset));
+
+		/*
+		 * Restore the legacy fd field too.  Old Mali/SPRD code may inspect
+		 * hnd->fd directly, but after HIDL transport only share_fd is a real
+		 * FD.  Both now refer to the valid local fb0 descriptor.
+		 */
+		hnd->fd = hnd->share_fd;
+		hnd->lockState |= private_handle_t::LOCK_STATE_MAPPED;
+
+
+		pthread_mutex_unlock(&s_map_lock);
+		return 0;
 	}
 	else if (hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION)
 	{
@@ -170,7 +217,38 @@ static int gralloc_unregister_buffer(gralloc_module_t const *module, buffer_hand
 
 	if (hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER)
 	{
-		AERR("Can't unregister buffer 0x%p as it is a framebuffer", handle);
+		pthread_mutex_lock(&s_map_lock);
+
+		if ((hnd->lockState & private_handle_t::LOCK_STATE_MAPPED) &&
+		    hnd->base != 0 &&
+		    hnd->offset >= 0 &&
+		    hnd->size > 0)
+		{
+			void *mappedBase =
+			    reinterpret_cast<void *>(
+			        reinterpret_cast<uintptr_t>(hnd->base) -
+			        static_cast<uintptr_t>(hnd->offset));
+
+			const size_t mapSize =
+			    static_cast<size_t>(hnd->offset) +
+			    static_cast<size_t>(hnd->size);
+
+			if (munmap(mappedBase, mapSize) < 0)
+			{
+				AERR("SPRD FB UNIMPORT munmap failed: base=%p "
+				     "size=%zu error=%s",
+				     mappedBase,
+				     mapSize,
+				     strerror(errno));
+			}
+		}
+
+		hnd->base = 0;
+		hnd->lockState = 0;
+		hnd->writeOwner = 0;
+
+		pthread_mutex_unlock(&s_map_lock);
+		return 0;
 	}
 	else if (hnd->pid == getpid()) // never unmap buffers that were not registered in this process
 	{

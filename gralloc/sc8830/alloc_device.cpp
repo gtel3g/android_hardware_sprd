@@ -202,11 +202,34 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t *dev, size_t size, in
 	private_handle_t *hnd = new private_handle_t(private_handle_t::PRIV_FLAGS_FRAMEBUFFER, usage, size, vaddr,
 	        0, dup(m->framebuffer->fd), (uintptr_t)vaddr - (uintptr_t) m->framebuffer->base);
 
+	/*
+	 * T561 / Android 9:
+	 * share_fd is native_handle's transported FD.  Legacy 'fd' is only
+	 * an integer in the handle and is therefore not usable after HIDL
+	 * transport.  Export a real duplicate of fb0 through share_fd.
+	 */
+	hnd->share_fd = dup(m->framebuffer->fd);
+	if (hnd->share_fd < 0)
+	{
+		const int savedErrno = errno;
+
+		const int index = hnd->offset / bufferSize;
+		m->bufferMask &= ~(1LU << index);
+		close(hnd->fd);
+		delete hnd;
+		return -savedErrno;
+	}
+
+
 #ifdef FBIOGET_DMABUF
 	if (ioctl(m->framebuffer->fd, FBIOGET_DMABUF, &fb_dma_buf) == 0)
 	{
 		AINF("framebuffer accessed with dma buf (fd 0x%x)\n", (int)fb_dma_buf.fd);
+		const int oldShareFd = hnd->share_fd;
 		hnd->share_fd = fb_dma_buf.fd;
+
+		if (oldShareFd >= 0 && oldShareFd != hnd->share_fd)
+			close(oldShareFd);
 	}
 #endif
 
@@ -416,11 +439,20 @@ static int alloc_device_free(alloc_device_t *dev, buffer_handle_t handle)
 	if (hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER)
 	{
 		// free this buffer
-		private_module_t *m = reinterpret_cast<private_module_t *>(dev->common.module);
-		const size_t bufferSize = m->finfo.line_length * m->info.yres;
-		int index = ((uintptr_t)hnd->base - (uintptr_t)m->framebuffer->base) / bufferSize;
-		m->bufferMask &= ~(1 << index);
-		close(hnd->fd);
+		/*
+		 * Android 9 binderized allocator clones the native_handle for
+		 * transport and then frees its local copy.  The remote framebuffer
+		 * handle is still alive, so releasing bufferMask here would cause
+		 * every framebuffer allocation to reuse page zero.
+		 *
+		 * Keep the framebuffer slot reserved in the allocator process.
+		 */
+
+		if (hnd->fd >= 0)
+			close(hnd->fd);
+
+		if (hnd->share_fd >= 0 && hnd->share_fd != hnd->fd)
+			close(hnd->share_fd);
 	}
 	else if (hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION)
 	{
@@ -493,6 +525,7 @@ int alloc_device_open(hw_module_t const *module, const char *name, hw_device_t *
 	dev->common.close = alloc_device_close;
 	dev->alloc = alloc_device_alloc;
 	dev->free = alloc_device_free;
+
 
 	private_module_t *m = reinterpret_cast<private_module_t *>(dev->common.module);
 	m->ion_client = ion_open();
