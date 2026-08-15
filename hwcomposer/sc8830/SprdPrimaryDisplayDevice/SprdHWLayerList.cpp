@@ -1173,8 +1173,19 @@ int SprdHWLayerList:: revisitOverlayComposerLayer(SprdHWLayer *YUVLayer, SprdHWL
         else if ((mYUVLayerCount == 1)
                  && (YUVLayer->getProtectedFlag() == false))
         {
+#ifdef T561_ALLOW_NONPROTECTED_OVC
+            /*
+             * SM-T561: GSP cannot correctly display BT709 video.
+             * Allow the vendor GPU OverlayComposer fallback for a
+             * single ordinary YUV video layer.
+             *
+             * Do not clear mSkipLayerFlag here: preserve any rejection
+             * made earlier for another geometry/validation reason.
+             */
+#else
             ALOGI_IF(mDebugFlag, "Not protected Video, switch back to SF. L :%d", __LINE__);
             mSkipLayerFlag = true;
+#endif
         }
         else if (YUVLayer->getProtectedFlag())
         {

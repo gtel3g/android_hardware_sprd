@@ -158,6 +158,12 @@ ifeq ($(TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS),true)
 	#LOCAL_CFLAGS += -DFORCE_ADJUST_ACCELERATOR
 endif
 
+# T561: enable legacy SPRD OverlayComposer GPU
+ifeq ($(TARGET_DEVICE),gtel3g)
+USE_OVERLAY_COMPOSER_GPU := true
+LOCAL_CFLAGS += -DT561_ALLOW_NONPROTECTED_OVC
+endif
+
 # OVERLAY_COMPOSER_GPU_CONFIG: Enable or disable OVERLAY_COMPOSER_GPU
 # Macro, OVERLAY_COMPOSER will do Hardware layer blending and then
 # post the overlay buffer to OSD display plane.

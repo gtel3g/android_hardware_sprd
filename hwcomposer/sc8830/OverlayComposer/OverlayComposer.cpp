@@ -58,9 +58,12 @@ OverlayComposer::~OverlayComposer()
 {
     deInitOpenGLES();
     deInitEGL();
-    sem_destroy(&cmdSem);
-    sem_destroy(&doneSem);
-    sem_destroy(&displaySem);
+    if (InitFlag == 1)
+    {
+        sem_destroy(&cmdSem);
+        sem_destroy(&doneSem);
+        sem_destroy(&displaySem);
+    }
 }
 
 void OverlayComposer::onFirstRef()
@@ -70,6 +73,8 @@ void OverlayComposer::onFirstRef()
 
 status_t OverlayComposer::readyToRun()
 {
+    InitFlag = 0;
+
     static bool initGFXFlag = false;
 
     if (initGFXFlag == false)
@@ -81,7 +86,11 @@ status_t OverlayComposer::readyToRun()
             return -1;
         }
 
-        initOpenGLES();
+        if (!initOpenGLES())
+        {
+            ALOGE("OverlayComposer: initOpenGLES failed");
+            return -1;
+        }
 
         initGFXFlag = true;
     }
@@ -91,6 +100,8 @@ status_t OverlayComposer::readyToRun()
     sem_init(&displaySem, 0, 0);
 
     InitSem();
+
+    InitFlag = 1;
 
     return NO_ERROR;
 }
@@ -486,6 +497,11 @@ int OverlayComposer::composerHWLayers()
 
 bool OverlayComposer::onComposer(hwc_display_contents_1_t* l)
 {
+    if (InitFlag != 1)
+    {
+        return false;
+    }
+
     if (l == NULL)
     {
         ALOGE("hwc_layer_list is NULL");
@@ -510,6 +526,11 @@ bool OverlayComposer::onComposer(hwc_display_contents_1_t* l)
 
 void OverlayComposer::onDisplay()
 {
+    if (InitFlag != 1)
+    {
+        return;
+    }
+
     exhaustAllSem();
     sem_post(&displaySem);
 

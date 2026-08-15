@@ -216,6 +216,16 @@ int OverlayNativeWindow::query(const ANativeWindow* window,
     //ALOGI("%s %d",__func__,__LINE__);
 
     switch (what) {
+        /*
+         * Android 9 EGL validates ANativeWindow before creating
+         * an EGLSurface. Legacy SPRD OverlayNativeWindow predates
+         * NATIVE_WINDOW_IS_VALID and therefore returned BAD_VALUE,
+         * causing EGL_BAD_NATIVE_WINDOW.
+         */
+        case NATIVE_WINDOW_IS_VALID:
+            *value = 1;
+            return NO_ERROR;
+
         case NATIVE_WINDOW_FORMAT:
             *value = self->mFormat;
             return NO_ERROR;

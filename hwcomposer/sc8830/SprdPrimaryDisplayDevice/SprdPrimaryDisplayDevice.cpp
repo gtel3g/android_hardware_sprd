@@ -710,7 +710,17 @@ int SprdPrimaryDisplayDevice:: commit(hwc_display_contents_1_t* list)
     if (DisplayOverlayComposerGPU)
     {
         ALOGI_IF(mDebugFlag, "Start OverlayComposer composition misson");
-        mOverlayComposer->onComposer(list);
+
+        if (!mOverlayComposer->onComposer(list))
+        {
+            static bool overlayComposerFailureLogged = false;
+            if (!overlayComposerFailureLogged)
+            {
+                ALOGE("OverlayComposer unavailable, skip OVC frame");
+                overlayComposerFailureLogged = true;
+            }
+            goto displayDone;
+        }
 
         ALOGI_IF(mDebugFlag, "Start OverlayComposer display misson");
         mOverlayComposer->onDisplay();
