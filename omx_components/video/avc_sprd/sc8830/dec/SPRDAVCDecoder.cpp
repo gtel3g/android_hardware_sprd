@@ -33,7 +33,7 @@
 
 #include <ui/Rect.h>
 #include "gralloc_priv.h"
-#include "ion_sprd.h"
+#include <video/ion_sprd.h>
 #include "avc_dec_api.h"
 
 //#define VIDEODEC_CURRENT_OPT  /*only open for SAMSUNG currently*/

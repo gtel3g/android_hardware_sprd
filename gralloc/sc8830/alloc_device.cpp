@@ -35,7 +35,7 @@
 #include <linux/ion.h>
 #include <ion/ion.h>
 
-#include "ion_sprd.h"
+#include <video/ion_sprd.h>
 
 
 static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage, buffer_handle_t *pHandle)

@@ -39,18 +39,16 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/../../../gralloc/$(TARGET_BOARD_PLATFORM) \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/video/ \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/ \
 	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/ \
 
-LOCAL_ADDITIONAL_DEPENDENCIES += \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr \
 
 LOCAL_MODULE_TAGS := optional
 
 # Legacy Spreadtrum GSP produces warnings with modern Clang.
 LOCAL_CFLAGS += -Wno-error
 LOCAL_CPPFLAGS += -Wno-error
+
+LOCAL_HEADER_LIBRARIES += generated_kernel_headers
 
 include $(BUILD_SHARED_LIBRARY)
 

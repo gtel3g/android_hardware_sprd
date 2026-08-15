@@ -42,4 +42,6 @@ ifeq ($(strip $(TARGET_BOARD_CAMERA_ANTI_SHAKE)),true)
 LOCAL_CFLAGS += -DANTI_SHAKE
 endif
 
+LOCAL_HEADER_LIBRARIES += generated_kernel_headers
+
 include $(BUILD_SHARED_LIBRARY)

@@ -49,4 +49,6 @@ LOCAL_MODULE := libstagefright_sprd_vpxdec
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_TAGS := optional
 
+LOCAL_HEADER_LIBRARIES += generated_kernel_headers
+
 include $(BUILD_SHARED_LIBRARY)

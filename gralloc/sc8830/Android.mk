@@ -57,12 +57,8 @@ LOCAL_STATIC_LIBRARIES += \
 endif
 
 LOCAL_C_INCLUDES := \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/video/ \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/ \
 	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/ \
 
-LOCAL_ADDITIONAL_DEPENDENCIES += \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr \
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
 	$(LOCAL_PATH) \
@@ -90,6 +86,8 @@ LOCAL_SRC_FILES := \
 	gralloc_module.cpp \
 	alloc_device.cpp \
 	framebuffer_device.cpp
+
+LOCAL_HEADER_LIBRARIES += generated_kernel_headers
 
 include $(BUILD_SHARED_LIBRARY)
 

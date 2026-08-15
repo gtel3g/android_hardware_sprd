@@ -39,7 +39,7 @@
 #include "MemoryHeapIon.h"
 
 #include "SPRDAVCEncoder.h"
-#include "ion_sprd.h"
+#include <video/ion_sprd.h>
 #include "gralloc_priv.h"
 
 #define VIDEOENC_CURRENT_OPT

@@ -67,16 +67,11 @@ LOCAL_C_INCLUDES := \
 	$(TOP)/frameworks/native/libs/nativewindow/include/ \
 	$(LOCAL_PATH)/../../gralloc/$(TARGET_BOARD_PLATFORM) \
 	$(LOCAL_PATH)/../../libmemoryheapion/ \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/video/ \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include/
 
 ifeq ($(SOC_SCX30G_V2),true)
 LOCAL_CFLAGS += \
 	-DSCX30G_V2
 endif
-
-LOCAL_ADDITIONAL_DEPENDENCIES += \
-	$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 LOCAL_CFLAGS += \
 	-DLOG_TAG=\"SPRDHWComposer\" \
@@ -226,6 +221,8 @@ LOCAL_CPPFLAGS += \
     -Wno-unused-parameter \
     -Wno-unused-private-field \
     -Wno-gnu-designator
+
+LOCAL_HEADER_LIBRARIES += generated_kernel_headers
 
 include $(BUILD_SHARED_LIBRARY)
 
