@@ -101,6 +101,11 @@ ifeq ($(TARGET_BOARD_PLATFORM),scx15)
 #DEVICE_DYNAMIC_RELEASE_PLANEBUFFER := true
 endif
 
+# SM-T561 / gtel3g: reduce primary-plane memory bandwidth
+ifeq ($(TARGET_DEVICE),gtel3g)
+DEVICE_PRIMARYPLANE_USE_RGB565 := true
+endif
+
 ifeq ($(DEVICE_USE_FB_HW_VSYNC),true)
 LOCAL_CFLAGS += -DUSE_FB_HW_VSYNC
 endif

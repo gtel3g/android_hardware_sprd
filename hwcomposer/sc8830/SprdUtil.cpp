@@ -2145,6 +2145,7 @@ int SprdUtil::composerLayerList(SprdHWLayer **videoLayerList, int videoLayerCoun
 
 
     layer_total = videoLayerCount+osdLayerCount;
+
     /*params check*/
     if((mGsp_cap.magic != CAPABILITY_MAGIC_NUMBER)
        ||(layer_total == 0)
@@ -2157,7 +2158,7 @@ int SprdUtil::composerLayerList(SprdHWLayer **videoLayerList, int videoLayerCoun
        ||(videoLayerCount == 0 && osdLayerCount > 0 && buffer2 == NULL)
        ||(buffer1 == NULL && buffer2 == NULL)) {
         //ALOGE("err: composerLayers() layer total count(%d+%d) > 2, GSP cant process,return!",videoLayerCount,osdLayerCount);
-        ALOGE("util[%04d] composerLayerList params check err!",__LINE__);
+
         return -1;
     }
 
