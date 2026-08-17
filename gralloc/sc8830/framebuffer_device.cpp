@@ -720,14 +720,17 @@ static int init_frame_buffer(struct private_module_t *module)
 
 static int fb_close(struct hw_device_t *device)
 {
+	
+	#ifdef SPRD_DITHER_ENABLE
 	framebuffer_device_t *dev = reinterpret_cast<framebuffer_device_t *>(device);
 
-#ifdef SPRD_DITHER_ENABLE
 	if (dev->reserved[6]) {
 		dither_close(dev->reserved[6]);
 		dev->reserved[6] = 0;
 		AINF("dither close ID %i\n", 1);
 	}
+#else
+	MALI_IGNORE(device);
 #endif
 
 	return 0;

@@ -65,7 +65,7 @@ struct fb_dmabuf_export
 /*#define FBIOGET_DMABUF    _IOR('F', 0x21, struct fb_dmabuf_export)*/
 typedef int ion_user_handle_t;
 
-static int mDebug=1;
+static int mDebug=0;
 
 /* the max string size of GRALLOC_HARDWARE_GPU0 & GRALLOC_HARDWARE_FB0
  * 8 is big enough for "gpu0" & "fb0" currently
