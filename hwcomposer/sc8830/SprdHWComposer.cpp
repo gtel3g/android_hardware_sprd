@@ -36,6 +36,7 @@
 
 #include "SprdHWComposer.h"
 #include "AndroidFence.h"
+#include <linux/fb.h>
 
 
 using namespace android;
@@ -236,43 +237,23 @@ int SprdHWComposer:: blank(int disp, int blank)
 {
     queryDebugFlag(&mDebugFlag);
     ALOGI_IF(mDebugFlag, "%s : %s display:%d", __func__,
-             (blank == 1) ? "Blanking" : "UnBlanking", disp);
+             blank ? "Blanking" : "UnBlanking", disp);
 
-    if (blank)
+    if (disp != DISPLAY_PRIMARY)
+        return 0;
+
+    if (mFBInfo == NULL || mFBInfo->fbfd < 0)
+        return -ENODEV;
+
+    const int mode = blank ? FB_BLANK_POWERDOWN : FB_BLANK_UNBLANK;
+
+    if (ioctl(mFBInfo->fbfd, FBIOBLANK, mode) < 0)
     {
-        /*
-         *  Here, we need free up all the Overlay Plane and
-         *  Primary plane.
-         * */
+        const int error = errno;
+        ALOGE("%s: FBIOBLANK mode %d failed: %d",
+              __func__, mode, error);
+        return -error;
     }
-
-    /*
-     *  DisplayC need implementing this feature.
-     * */
-#if 0
-    switch(disp)
-    {
-        case DISPLAY_PRIMARY:
-            if (blank)
-            {
-                ioctl(mFBInfo->fbfd, FBIOBLANK, FB_BLANK_POWERDOWN);
-            }
-            else
-            {
-                ioctl(mFBInfo->fbfd, FBIOBLANK, FB_BLANK_UNBLANK);
-            }
-            break;
-        case DISPLAY_EXTERNAL:
-        case DISPLAY_VIRTUAL:
-            if (blank)
-            {
-
-            }
-            break;
-        default:
-            return -EINVAL;
-    }
-#endif
 
     return 0;
 }
