@@ -1171,16 +1171,6 @@ int SprdUtil::getGSPCapability(GSP_CAPABILITY_T *pGsp_cap)
                      pGsp_cap->blend_video_with_OSD,
                      pGsp_cap->max_layer_cnt_with_video);
 
-            /*
-             * SC8830 GSP has two hardware inputs per pass.
-             * Allow the existing UI composition path to use both.
-             * Video capabilities remain unchanged.
-             */
-            if (pGsp_cap->max_layer_cnt == 1) {
-                ALOGW("TEST: override GSP UI max_layer_cnt 1 -> 2");
-                pGsp_cap->max_layer_cnt = 2;
-            }
-
             if(mGsp_cap.buf_type_support != 0) {
                 ALOGI_IF(mDebugFlag,"util[%04d] GSP_GetCapability HWC force buffer addr type to %d.",__LINE__,mGsp_cap.buf_type_support);
                 pGsp_cap->buf_type_support = mGsp_cap.buf_type_support;
