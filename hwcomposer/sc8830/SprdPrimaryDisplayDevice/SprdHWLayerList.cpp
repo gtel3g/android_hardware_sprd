@@ -319,6 +319,69 @@ int SprdHWLayerList:: revisitGeometry(int *DisplayFlag, SprdPrimaryDisplayDevice
     /*
      *  revist OSD layer geometry.
      * */
+    /*
+     * SM-T561: three RGB layers require GSP multi-pass.
+     *
+     * It works well for the cheap Home composition:
+     *   fullscreen wallpaper
+     *   fullscreen launcher
+     *   small full-width status bar
+     *
+     * Do not use three-layer multi-pass for heavier UI such as
+     * notification shade, recents, dialogs or other large overlays.
+     */
+    bool allowThreeOSDMultiPass = false;
+
+    if ((mOSDLayerCount == 3)
+        && (mVideoLayerCount == 0))
+    {
+        int fullScreenLayers = 0;
+        int topStripLayers = 0;
+
+        for (uint32_t j = 0; j < 3; j++)
+        {
+            SprdHWLayer *osd = mOSDLayerList[j];
+            if (osd == NULL || !(osd->InitCheck()))
+                continue;
+
+            hwc_layer_1_t *androidLayer = osd->getAndroidLayer();
+            if (androidLayer == NULL)
+                continue;
+
+            const hwc_rect_t &r = androidLayer->displayFrame;
+
+            int width = r.right - r.left;
+            int height = r.bottom - r.top;
+
+            bool fullScreen =
+                (r.left == 0)
+                && (r.top == 0)
+                && (width == (int)mFBInfo->fb_width)
+                && (height == (int)mFBInfo->fb_height);
+
+            bool topStrip =
+                (r.left == 0)
+                && (r.top == 0)
+                && (width == (int)mFBInfo->fb_width)
+                && (height > 0)
+                && (height <= (int)(mFBInfo->fb_height / 8));
+
+            if (fullScreen)
+                fullScreenLayers++;
+            else if (topStrip)
+                topStripLayers++;
+        }
+
+        allowThreeOSDMultiPass =
+            (fullScreenLayers == 2) && (topStripLayers == 1);
+
+        ALOGI_IF(mDebugFlag,
+                 "T561 3-RGB multi-pass: full=%d strip=%d allow=%d",
+                 fullScreenLayers,
+                 topStripLayers,
+                 allowThreeOSDMultiPass);
+    }
+
     uint32_t OSDLayerCount = mOSDLayerCount;
 
     for (i = 0; i < OSDLayerCount; i++)
@@ -399,6 +462,8 @@ int SprdHWLayerList:: revisitGeometry(int *DisplayFlag, SprdPrimaryDisplayDevice
                                              : (((uint32_t)mOSDLayerCount >
                                                  GXPMaxComposeOSDLayerCount)
                                                 || (mOSDLayerCount > 0 && mFBLayerCount > 0)
+                                                || ((OSDLayerCount == 3)
+                                                    && !allowThreeOSDMultiPass)
                                                 || accelerateOSDByOVC);
         if (resetOSDLayerCond)
         {

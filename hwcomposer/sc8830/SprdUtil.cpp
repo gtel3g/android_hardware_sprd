@@ -1213,6 +1213,16 @@ int SprdUtil::getGSPCapability(GSP_CAPABILITY_T *pGsp_cap)
                 ALOGI_IF(mDebugFlag,"util[%04d] after adjust,max:%d,maxinvideo:%d.",__LINE__,
                          pGsp_cap->max_layer_cnt,pGsp_cap->max_layer_cnt_with_video);
             }
+            /*
+             * SM-T561: expose three RGB UI layers to HWC so
+             * revisitGeometry() can selectively allow GSP multi-pass.
+             * Video composition capability remains unchanged.
+             */
+            if (pGsp_cap->max_layer_cnt == 2) {
+                ALOGW("T561: expose 3 RGB UI layers for selective GSP multi-pass");
+                pGsp_cap->max_layer_cnt = 3;
+            }
+
             mGsp_cap = *pGsp_cap;
             ALOGE("util[%04d] GSP_GetCapability ok.",__LINE__);
         }
