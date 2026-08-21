@@ -62,7 +62,7 @@ static const CodecProfileLevel kProfileLevels[] = {
     { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel4  },
     { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel41 },
     { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel42 },
-    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel5  },
+    { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel5 },
     { OMX_VIDEO_AVCProfileBaseline, OMX_VIDEO_AVCLevel51 },
 
     { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel1  },
@@ -79,7 +79,7 @@ static const CodecProfileLevel kProfileLevels[] = {
     { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel4  },
     { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel41 },
     { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel42 },
-    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel5  },
+    { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel5 },
     { OMX_VIDEO_AVCProfileMain, OMX_VIDEO_AVCLevel51 },
 
     { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel1  },
@@ -96,7 +96,7 @@ static const CodecProfileLevel kProfileLevels[] = {
     { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel4  },
     { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel41 },
     { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel42 },
-    { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel5  },
+    { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel5 },
     { OMX_VIDEO_AVCProfileHigh, OMX_VIDEO_AVCLevel51 },
 };
 
@@ -1123,7 +1123,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
 
         mChangeToSwDec = false;
 
-        ALOGI("%s, %d, change to sw decoder, mThumbnailMode: %d",
+        ALOGV("%s, %d, change to sw decoder, mThumbnailMode: %d",
               __FUNCTION__, __LINE__, mThumbnailMode);
 
         releaseDecoder();
@@ -1174,7 +1174,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         size_t count = 0;
         do {
             if(count >= outQueue.size()) {
-                ALOGI("onQueueFilled, get outQueue buffer, return, count=%zd, queue_size=%d",count, outQueue.size());
+                ALOGV("onQueueFilled, get outQueue buffer, return, count=%zd, queue_size=%d",count, outQueue.size());
                 return;
             }
 
@@ -1192,8 +1192,8 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         }
         while(pBufCtrl->iRefCount > 0);
 
-//        ALOGI("%s, %d, mBuffer=0x%x, outHeader=0x%x, iRefCount=%d", __FUNCTION__, __LINE__, *itBuffer, outHeader, pBufCtrl->iRefCount);
-        ALOGI("%s, %d, outHeader:%p, inHeader: %p, len: %d, nOffset: %d, time: %lld, EOS: %d",
+//        ALOGV("%s, %d, mBuffer=0x%x, outHeader=0x%x, iRefCount=%d", __FUNCTION__, __LINE__, *itBuffer, outHeader, pBufCtrl->iRefCount);
+        ALOGV("%s, %d, outHeader:%p, inHeader: %p, len: %d, nOffset: %d, time: %lld, EOS: %d",
               __FUNCTION__, __LINE__,outHeader,inHeader, inHeader->nFilledLen,inHeader->nOffset, inHeader->nTimeStamp,inHeader->nFlags & OMX_BUFFERFLAG_EOS);
 
         ++mPicId;
@@ -1230,14 +1230,14 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
             } else {
                 if (!mDecoderSawSPS) {
                     if (mSPSDataSize > 0) {
-                        ALOGI("%s, drain SPSData", __FUNCTION__);
+                        ALOGV("%s, drain SPSData", __FUNCTION__);
                         bitstream = mSPSData;
                         bufferSize = mSPSDataSize;
                         mIsResume = true;
                     }
                 } else if (!mDecoderSawPPS) {
                     if (mPPSDataSize > 0) {
-                        ALOGI("%s, drain PPSData", __FUNCTION__);
+                        ALOGV("%s, drain PPSData", __FUNCTION__);
                         bitstream = mPPSData;
                         bufferSize = mPPSDataSize;
                         mIsResume = true;
@@ -1262,7 +1262,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
 
             if((p[0] != 0x0) || (p[1] != 0x0) || (p[2] != 0x0) || (p[3] != 0x1))
             {
-                ALOGI("%s, %d, p[0]: %x, p[1]: %x, p[2]: %x, p[3]: %x", __FUNCTION__, __LINE__, p[0], p[1], p[2], p[3]);
+                ALOGV("%s, %d, p[0]: %x, p[1]: %x, p[2]: %x, p[3]: %x", __FUNCTION__, __LINE__, p[0], p[1], p[2], p[3]);
 
                 ((uint8_t *) mPbuf_stream_v)[0] = 0x0;
                 ((uint8_t *) mPbuf_stream_v)[1] = 0x0;
@@ -1336,7 +1336,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         int64_t start_decode = systemTime();
         MMDecRet decRet = (*mH264DecDecode)(mHandle, &dec_in,&dec_out);
         int64_t end_decode = systemTime();
-        ALOGI("%s, %d, decRet: %d, %dms, dec_out.frameEffective: %d, needIVOP: %d, consume byte: %u, flag:0x%x, SPS:%d, PPS:%d, pts:%lld",
+        ALOGV("%s, %d, decRet: %d, %dms, dec_out.frameEffective: %d, needIVOP: %d, consume byte: %u, flag:0x%x, SPS:%d, PPS:%d, pts:%lld",
               __FUNCTION__, __LINE__, decRet, (unsigned int)((end_decode-start_decode) / 1000000L),
               dec_out.frameEffective, mNeedIVOP, dec_in.dataLen, inHeader->nFlags,dec_out.sawSPS,dec_out.sawPPS, dec_out.pts);
 
@@ -1359,7 +1359,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
                     notify(OMX_EventError, OMX_ErrorInsufficientResources, 0, NULL);
                     mSignalledError = true;
                 } else {
-                    ALOGI("change to sw decoder.");
+                    ALOGV("change to sw decoder.");
                     mChangeToSwDec = true;
                     mDecoderSawSPS = false;
                     mDecoderSawPPS = false;
@@ -1375,7 +1375,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
             } else if (decRet == MMDEC_HW_ERROR) {
                 ALOGE("failed to decode video frame, hardware error");
             } else {
-                ALOGI("now, we don't take care of the decoder return: %d", decRet);
+                ALOGV("now, we don't take care of the decoder return: %d", decRet);
             }
         }
 
@@ -1393,9 +1393,9 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
             }
 
             if (handlePortSettingChangeEvent(&decoderInfo)) {
-                return;
+                                                    return;
             } else if(mChangeToSwDec == true) {
-                return;
+                                                    return;
             }
         } else {
             ALOGE("failed to get decoder information.");
@@ -1422,7 +1422,7 @@ void SPRDAVCDecoder::onQueueFilled(OMX_U32 portIndex) {
         while (!outQueue.empty() &&
                 mHeadersDecoded &&
                 dec_out.frameEffective) {
-            ALOGI("%s, %d, dec_out.pBufferHeader: %p, dec_out.mPicId: %d, dec_out.pts: %lld", __FUNCTION__, __LINE__, dec_out.pBufferHeader, dec_out.mPicId, dec_out.pts);
+            ALOGV("%s, %d, dec_out.pBufferHeader: %p, dec_out.mPicId: %d, dec_out.pts: %lld", __FUNCTION__, __LINE__, dec_out.pBufferHeader, dec_out.mPicId, dec_out.pts);
             drainOneOutputBuffer(dec_out.mPicId, dec_out.pBufferHeader, dec_out.pts);
             dump_yuv(dec_out.pOutFrameY, mPictureSize);
 
@@ -1522,7 +1522,7 @@ void SPRDAVCDecoder::drainOneOutputBuffer(int32_t picId, void* pBufferHeader, ui
     outHeader->nFilledLen = mPictureSize;
     outHeader->nTimeStamp = (OMX_TICKS)pts;
 
-    ALOGI("%s, %d, outHeader: %p, outHeader->pBuffer: %p, outHeader->nOffset: %d, outHeader->nFlags: %d, outHeader->nTimeStamp: %lld",
+    ALOGV("%s, %d, outHeader: %p, outHeader->pBuffer: %p, outHeader->nOffset: %d, outHeader->nFlags: %d, outHeader->nTimeStamp: %lld",
           __FUNCTION__, __LINE__, outHeader , outHeader->pBuffer, outHeader->nOffset, outHeader->nFlags, outHeader->nTimeStamp);
 
 //    LOGI("%s, %d, outHeader->nTimeStamp: %d, outHeader->nFlags: %d, mPictureSize: %d", __FUNCTION__, __LINE__, outHeader->nTimeStamp, outHeader->nFlags, mPictureSize);
@@ -1824,7 +1824,7 @@ int SPRDAVCDecoder::VSP_malloc_mbinfo_cb(unsigned int size_mbinfo, unsigned long
 int SPRDAVCDecoder::VSP_bind_cb(void *pHeader) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
 
-    ALOGI("VSP_bind_cb, pBuffer: %p, pHeader: %p; iRefCount=%d",
+    ALOGV("VSP_bind_cb, pBuffer: %p, pHeader: %p; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
 
     pBufCtrl->iRefCount++;
@@ -1834,7 +1834,7 @@ int SPRDAVCDecoder::VSP_bind_cb(void *pHeader) {
 int SPRDAVCDecoder::VSP_unbind_cb(void *pHeader) {
     BufferCtrlStruct *pBufCtrl = (BufferCtrlStruct *)(((OMX_BUFFERHEADERTYPE *)pHeader)->pOutputPortPrivate);
 
-    ALOGI("VSP_unbind_cb, pBuffer: %p, pHeader: %p; iRefCount=%d",
+    ALOGV("VSP_unbind_cb, pBuffer: %p, pHeader: %p; iRefCount=%d",
           ((OMX_BUFFERHEADERTYPE *)pHeader)->pBuffer, pHeader,pBufCtrl->iRefCount);
 
     if (pBufCtrl->iRefCount  > 0) {

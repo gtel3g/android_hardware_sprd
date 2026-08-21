@@ -171,6 +171,7 @@ private:
     OMX_BOOL iUseAndroidNativeBuffer[2];
     MMDecCapability mCapability;
 
+
     OMX_ERRORTYPE mInitCheck;
 
     void initPorts();
