@@ -243,10 +243,18 @@ static void onRequestCompleteShim(RIL_Token t, RIL_Errno e, void *response, size
 
 	pRI = (RequestInfo *)t;
 
-	/* If pRI is null, this entire function is useless. */
+	/*
+	 * Samsung's legacy multiclient interface may complete requests
+	 * which do not originate from Android libril. Those requests use
+	 * a NULL RIL_Token and have already been answered through
+	 * RIL_onMultiClientRequestComplete().
+	 *
+	 * Never forward such completions to Android libril, otherwise it
+	 * receives OnRequestComplete(NULL, ...) and reports an invalid token.
+	 */
 	if (pRI == NULL) {
-		RLOGE("pRI is NULL!");
-		goto null_token_exit;
+		RLOGD("Ignoring legacy multiclient completion with NULL token");
+		return;
 	}
 
 	/* If pCI is null or invalid pointer, this entire function is useless. */
@@ -328,6 +336,7 @@ const RIL_RadioFunctions* RIL_Init(const struct RIL_Env *env, int argc, char **a
 	shimmedEnv.OnUnsolicitedResponse = onUnsolicitedResponseShim;
 
 	/* Open and Init the original RIL. */
+
 
 	origRil = dlopen(RIL_LIB_PATH, RTLD_GLOBAL);
 	if (CC_UNLIKELY(!origRil)) {
