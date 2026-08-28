@@ -259,7 +259,16 @@ int stop_service(char * modem, int is_vlx)
         property_set(PHONE_APP_PROP, pid_str);
     }
     MODEMD_LOGD("kill %s phone process", modem);
-    property_set("ctl.start", "kill_phone");
+
+    if (!strcmp(modem, "t")) {
+        property_set("ctl.start", "kill_td_phone");
+    } else if (!strcmp(modem, "w")) {
+        property_set("ctl.start", "kill_w_phone");
+    } else if (!strcmp(modem, "l")) {
+        property_set("ctl.start", "kill_l_phone");
+    } else {
+        MODEMD_LOGE("no phone kill service for modem type %s", modem);
+    }
 
     return 0;
 }
