@@ -21,6 +21,12 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := ril_shim.cpp
 LOCAL_SHARED_LIBRARIES := libbinder libcutils liblog
 LOCAL_MODULE := libril_shim
+
+# The stock Samsung/Spreadtrum RIL is loaded with dlopen() and expects
+# the legacy compatibility symbols exported by this library to be
+# available in the global lookup scope.
+LOCAL_LDFLAGS += -Wl,-z,global
+
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
