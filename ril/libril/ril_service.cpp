@@ -8652,7 +8652,7 @@ void radio::registerService(RIL_RadioFunctions *callbacks, CommandInfo *commands
     simCount = SIM_COUNT;
     #endif
 
-    configureRpcThreadpool(1, true /* callerWillJoin */);
+    configureRpcThreadpool(2, true /* callerWillJoin */);
     for (int i = 0; i < simCount; i++) {
         pthread_rwlock_t *radioServiceRwlockPtr = getRadioServiceRwlock(i);
         int ret = pthread_rwlock_wrlock(radioServiceRwlockPtr);
