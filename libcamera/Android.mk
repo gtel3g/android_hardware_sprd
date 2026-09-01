@@ -15,13 +15,18 @@
 # limitations under the License.
 #
 
-#LOCAL_PATH := $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_CAMERA_OPEN_SOURCE),true)
+ifeq ($(TARGET_USES_SPRD_LEGACY_CAMERA_WRAPPER),true)
+
+include $(LOCAL_PATH)/legacy_wrapper/Android.mk
+
+else ifeq ($(TARGET_CAMERA_OPEN_SOURCE),true)
+
 supported_boards := \
-	sc8830 \
-	sc8810 \
-	scx15 \
+    sc8830 \
+    sc8810 \
+    scx15
 
 ifneq (,$(filter $(supported_boards),$(TARGET_BOARD_PLATFORM)))
 ifeq ($(SOC_SCX30G_V2),true)
@@ -30,4 +35,5 @@ else
 include $(call all-named-subdir-makefiles,$(TARGET_BOARD_PLATFORM))
 endif # SOC_SCX30G_V2
 endif # supported_boards
-endif # TARGET_CAMERA_OPEN_SOURCE
+
+endif # TARGET_USES_SPRD_LEGACY_CAMERA_WRAPPER

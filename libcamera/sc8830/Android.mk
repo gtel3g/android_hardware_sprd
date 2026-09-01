@@ -1,7 +1,3 @@
-# T561/gtel3g uses the stock Samsung/SPRD camera HAL through
-# device/samsung/gtel3g/camera CameraWrapper.
-ifneq ($(TARGET_DEVICE),gtel3g)
-
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -410,4 +406,3 @@ include $(BUILD_PREBUILT)
 endif
 endif
 
-endif # TARGET_DEVICE != gtel3g
