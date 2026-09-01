@@ -101,11 +101,6 @@ ifeq ($(TARGET_BOARD_PLATFORM),scx15)
 #DEVICE_DYNAMIC_RELEASE_PLANEBUFFER := true
 endif
 
-# SM-T561 / gtel3g: reduce primary-plane memory bandwidth
-ifeq ($(TARGET_DEVICE),gtel3g)
-DEVICE_PRIMARYPLANE_USE_RGB565 := true
-endif
-
 ifeq ($(DEVICE_USE_FB_HW_VSYNC),true)
 LOCAL_CFLAGS += -DUSE_FB_HW_VSYNC
 endif
@@ -158,10 +153,10 @@ ifeq ($(TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS),true)
 	#LOCAL_CFLAGS += -DFORCE_ADJUST_ACCELERATOR
 endif
 
-# T561: enable legacy SPRD OverlayComposer GPU
-ifeq ($(TARGET_DEVICE),gtel3g)
-USE_OVERLAY_COMPOSER_GPU := true
-LOCAL_CFLAGS += -DT561_ALLOW_NONPROTECTED_OVC
+# Allow non-protected YUV layers to use the legacy GPU
+# OverlayComposer when the device requires this fallback.
+ifeq ($(SPRD_ALLOW_NONPROTECTED_OVC),true)
+LOCAL_CFLAGS += -DSPRD_ALLOW_NONPROTECTED_OVC
 endif
 
 # OVERLAY_COMPOSER_GPU_CONFIG: Enable or disable OVERLAY_COMPOSER_GPU

@@ -203,7 +203,7 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t *dev, size_t size, in
 	        0, dup(m->framebuffer->fd), (uintptr_t)vaddr - (uintptr_t) m->framebuffer->base);
 
 	/*
-	 * T561 / Android 9:
+	 * Binderized graphics compatibility:
 	 * share_fd is native_handle's transported FD.  Legacy 'fd' is only
 	 * an integer in the handle and is therefore not usable after HIDL
 	 * transport.  Export a real duplicate of fb0 through share_fd.

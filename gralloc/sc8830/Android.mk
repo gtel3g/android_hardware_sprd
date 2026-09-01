@@ -80,8 +80,9 @@ ifeq ($(SOC_SCX30G_V2),true)
 LOCAL_CFLAGS += -DSCX30G_V2
 endif
 
-# T561: use transportable legacy framebuffer handles for zero-copy
-ifneq ($(TARGET_DEVICE),gtel3g)
+# Use ION-backed framebuffer targets unless the device supports
+# transporting legacy framebuffer handles through the HIDL allocator.
+ifneq ($(TARGET_USES_SPRD_HIDL_FB_ZERO_COPY),true)
 LOCAL_CFLAGS += -DSPRD_HIDL_FB_TARGET_ION
 endif
 
