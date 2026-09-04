@@ -172,13 +172,90 @@ void HealthdDraw::draw_percent(const animation* anim) {
 }
 
 void HealthdDraw::draw_battery(const animation* anim) {
-  const animation::frame& frame = anim->frames[anim->cur_frame];
+  int level = anim->cur_level;
 
-  if (anim->num_frames != 0) {
-    draw_surface_centered(frame.surface);
-    LOGV("drawing frame #%d min_cap=%d time=%d\n", anim->cur_frame,
-         frame.min_level, frame.disp_time);
+  if (anim->cur_status == BATTERY_STATUS_FULL) {
+    level = 100;
   }
+
+  if (level < 0) {
+    level = 0;
+  } else if (level > 100) {
+    level = 100;
+  }
+
+  /*
+   * Scale the charger UI from the shortest framebuffer side.
+   * This keeps the same proportions in portrait and landscape modes
+   * without device- or resolution-specific coordinates.
+   */
+  const int short_side =
+      screen_width_ < screen_height_ ? screen_width_ : screen_height_;
+
+  int body_w = short_side * 34 / 100;
+  int body_h = short_side * 56 / 100;
+  int stroke = short_side / 120;
+
+  if (stroke < 3) {
+    stroke = 3;
+  }
+
+  const int terminal_w = body_w / 3;
+  const int terminal_h = stroke * 2;
+
+  const int center_x = screen_width_ / 2 + kSplitOffset;
+
+  const int left = center_x - body_w / 2;
+  const int right = left + body_w;
+  const int top = (screen_height_ - body_h) / 2;
+  const int bottom = top + body_h;
+
+  const int terminal_left = center_x - terminal_w / 2;
+  const int terminal_right = center_x + terminal_w / 2;
+  const int terminal_top = top - terminal_h;
+
+  /*
+   * White battery outline.
+   */
+  gr_color(255, 255, 255, 255);
+
+  gr_fill(left, top, right, top + stroke);
+  gr_fill(left, bottom - stroke, right, bottom);
+  gr_fill(left, top, left + stroke, bottom);
+  gr_fill(right - stroke, top, right, bottom);
+
+  gr_fill(terminal_left, terminal_top,
+          terminal_right, top);
+
+  /*
+   * Battery fill. Leave a small gap between the fill and outline.
+   */
+  const int padding = stroke * 2;
+
+  const int inner_left = left + padding;
+  const int inner_right = right - padding;
+  const int inner_top = top + padding;
+  const int inner_bottom = bottom - padding;
+
+  const int inner_h = inner_bottom - inner_top;
+  const int fill_h = inner_h * level / 100;
+
+  if (fill_h > 0) {
+    gr_color(0, 210, 100, 255);
+
+    gr_fill(inner_left,
+            inner_bottom - fill_h,
+            inner_right,
+            inner_bottom);
+  }
+
+  LOGV("SPRD charger: fb=%dx%d battery=%dx%d level=%d%%\n",
+       screen_width_, screen_height_, body_w, body_h, level);
+
+  /*
+   * Keep the existing Lineage text handling for this first step.
+   * It will be replaced by scalable SPRD text separately.
+   */
   draw_clock(anim);
   draw_percent(anim);
 }
