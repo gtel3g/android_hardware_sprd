@@ -26,3 +26,80 @@ LOCAL_C_INCLUDES := \
 	bootable/recovery/minui/include
 
 include $(BUILD_STATIC_LIBRARY)
+
+
+#
+# SPRD offline charger
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := sprd_charger
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_SRC_FILES := \
+    charger/charger.cpp \
+    charger/healthd_mode_charger.cpp \
+    charger/AnimationParser.cpp \
+    charger/healthd_draw.cpp
+
+LOCAL_FORCE_STATIC_EXECUTABLE := true
+LOCAL_MODULE_PATH := $(TARGET_ROOT_OUT_SBIN)
+LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_SBIN_UNSTRIPPED)
+
+LOCAL_C_INCLUDES := \
+    bootable/recovery \
+    $(LOCAL_PATH)/charger \
+    system/core/healthd/include
+
+LOCAL_CFLAGS := -Werror
+
+# healthd_draw runtime layout configuration
+ifneq ($(TARGET_HEALTHD_DRAW_SPLIT_SCREEN),)
+LOCAL_CFLAGS += -DHEALTHD_DRAW_SPLIT_SCREEN=$(TARGET_HEALTHD_DRAW_SPLIT_SCREEN)
+else
+LOCAL_CFLAGS += -DHEALTHD_DRAW_SPLIT_SCREEN=0
+endif
+
+ifneq ($(TARGET_HEALTHD_DRAW_SPLIT_OFFSET),)
+LOCAL_CFLAGS += -DHEALTHD_DRAW_SPLIT_OFFSET=$(TARGET_HEALTHD_DRAW_SPLIT_OFFSET)
+else
+LOCAL_CFLAGS += -DHEALTHD_DRAW_SPLIT_OFFSET=0
+endif
+
+ifeq ($(strip $(BOARD_CHARGER_DISABLE_INIT_BLANK)),true)
+LOCAL_CFLAGS += -DCHARGER_DISABLE_INIT_BLANK
+endif
+
+ifeq ($(strip $(BOARD_CHARGER_ENABLE_SUSPEND)),true)
+LOCAL_CFLAGS += -DCHARGER_ENABLE_SUSPEND
+endif
+
+LOCAL_STATIC_LIBRARIES := \
+    android.hardware.health@2.0-impl \
+    android.hardware.health@2.0 \
+    android.hardware.health@1.0 \
+    android.hardware.health@1.0-convert \
+    libhidltransport \
+    libhidlbase \
+    libhwbinder_noltopgo \
+    libhealthstoragedefault \
+    libvndksupport \
+    libbatterymonitor \
+    libminui \
+    libpng \
+    libz \
+    libbase \
+    libutils \
+    libcutils \
+    liblog \
+    libm \
+    libc
+
+ifeq ($(strip $(BOARD_CHARGER_ENABLE_SUSPEND)),true)
+LOCAL_STATIC_LIBRARIES += libsuspend
+endif
+
+LOCAL_HAL_STATIC_LIBRARIES := libhealthd
+
+include $(BUILD_EXECUTABLE)
