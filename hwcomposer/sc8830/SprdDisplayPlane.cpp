@@ -50,6 +50,8 @@ SprdDisplayPlane::SprdDisplayPlane()
       mPlaneUsage(GRALLOC_USAGE_OVERLAY_BUFFER),
       mDisplayBufferIndex(-1),
       mFlushingBufferIndex(-1),
+      mPreviousFlushingBufferIndex(-1),
+      mPendingReleaseBufferIndex(-1),
       mPlaneRunThreshold(100),
       mPlaneIdleCount(0),
       mWaitingBuffer(false),
@@ -193,7 +195,9 @@ private_handle_t* SprdDisplayPlane::dequeueBuffer()
      *  and queueBuffer invocation in serial way.
      * */
     static int dequeueFirstFlag = 0;
-    if (dequeueFirstFlag == 0 && mDisplayBufferIndex >= 0)
+    if (dequeueFirstFlag == 0 &&
+        mDisplayBufferIndex >= 0 &&
+        mSlots[mDisplayBufferIndex].mBufferState == BufferSlot::DEQUEUEED)
     {
         mSlots[mDisplayBufferIndex].mBufferState = BufferSlot::FREE;
         dequeueFirstFlag = 1;
@@ -218,6 +222,7 @@ int SprdDisplayPlane::queueBuffer()
 
 private_handle_t* SprdDisplayPlane::flush()
 {
+    Mutex::Autolock _l(mLock);
     if (mQueue.empty())
     {
         ALOGE("SprdDisplayPlane::flush no avaialbe buffer for flushing");
@@ -256,16 +261,32 @@ private_handle_t* SprdDisplayPlane::flush()
 
             mSlots[i].mBufferState = BufferSlot::FREE;
         }
-    }
-    else if (mFlushingBufferIndex >= 0)
-    {
-        mSlots[mFlushingBufferIndex].mBufferState = BufferSlot::FREE;
-    }
 
-    /*
-     *  Update the flushing buffer index
-     * */
-    mFlushingBufferIndex = index;
+        mPreviousFlushingBufferIndex = -1;
+        mPendingReleaseBufferIndex = -1;
+    }
+    else
+    {
+        if (mPendingReleaseBufferIndex >= 0)
+        {
+            ALOGE("SprdDisplayPlane pending buffer %d was not released",
+                  mPendingReleaseBufferIndex);
+        }
+
+        /*
+         * Triple-buffer lifetime:
+         *
+         * current  = buffer being submitted now
+         * previous = previous submitted buffer
+         * pending  = two submissions old
+         *
+         * pending is NOT freed here. SET_OVERLAY still has to wait
+         * until the previous DISPC update has latched.
+         */
+        mPendingReleaseBufferIndex = mPreviousFlushingBufferIndex;
+        mPreviousFlushingBufferIndex = mFlushingBufferIndex;
+        mFlushingBufferIndex = index;
+    }
 
     if (mWaitingBuffer)
     {
@@ -273,6 +294,40 @@ private_handle_t* SprdDisplayPlane::flush()
     }
 
     return flushingBuffer;
+}
+
+void SprdDisplayPlane::releasePendingBuffer()
+{
+    Mutex::Autolock _l(mLock);
+
+    const int index = mPendingReleaseBufferIndex;
+
+    if (index < 0)
+    {
+        return;
+    }
+
+    if (index >= mBufferCount)
+    {
+        ALOGE("SprdDisplayPlane invalid pending buffer index %d", index);
+        mPendingReleaseBufferIndex = -1;
+        return;
+    }
+
+    if (index == mFlushingBufferIndex ||
+        index == mPreviousFlushingBufferIndex)
+    {
+        ALOGE("SprdDisplayPlane refusing to release active buffer %d", index);
+        return;
+    }
+
+    mSlots[index].mBufferState = BufferSlot::FREE;
+    mPendingReleaseBufferIndex = -1;
+
+    if (mWaitingBuffer)
+    {
+        mCondition.broadcast();
+    }
 }
 
 //bool SprdDisplayPlane::display()
@@ -349,6 +404,8 @@ bool SprdDisplayPlane::close()
     }
 
     mFlushingBufferIndex = -1;
+    mPreviousFlushingBufferIndex = -1;
+    mPendingReleaseBufferIndex = -1;
 
     InitFlag = false;
 

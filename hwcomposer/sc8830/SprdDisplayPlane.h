@@ -60,7 +60,7 @@
 
 using namespace android;
 
-#define PLANE_BUFFER_NUMBER 2
+#define PLANE_BUFFER_NUMBER 3
 
 /*
  *  Manage DisplayPlane buffer, including
@@ -198,6 +198,7 @@ protected:
      *  Update SprdDisplayPlane display registers.
      * */
     virtual private_handle_t* flush();
+    void releasePendingBuffer();
     //virtual bool display();
 
     inline PlaneContext *getPlaneContext()
@@ -230,6 +231,8 @@ private:
     BufferSlot mSlots[PLANE_BUFFER_NUMBER];
     int mDisplayBufferIndex;
     int mFlushingBufferIndex;
+    int mPreviousFlushingBufferIndex;
+    int mPendingReleaseBufferIndex;
     int mPlaneRunThreshold;
     int mPlaneIdleCount;
     typedef Vector<int> FIFO;

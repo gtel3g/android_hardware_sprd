@@ -428,10 +428,22 @@ private_handle_t* SprdPrimaryPlane::flush()
         dumpOverlayImage(flushingBuffer, name);
     }
 
-    if (ioctl(mFBInfo->fbfd, SPRD_FB_SET_OVERLAY, BaseContext) == -1)
+    int ret = ioctl(mFBInfo->fbfd, SPRD_FB_SET_OVERLAY, BaseContext);
+
+    if (ret == -1)
     {
         ALOGE("fail osd SPRD_FB_SET_OVERLAY");
-        ioctl(mFBInfo->fbfd, SPRD_FB_SET_OVERLAY, BaseContext);//Fix ME later
+        ret = ioctl(mFBInfo->fbfd, SPRD_FB_SET_OVERLAY, BaseContext);
+    }
+
+    /*
+     * SET_OVERLAY has now synchronized against the previous DISPC
+     * update. The buffer from two submissions ago is finally safe
+     * to hand back to GSP.
+     */
+    if (ret != -1)
+    {
+        releasePendingBuffer();
     }
 
     return flushingBuffer;
