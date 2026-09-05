@@ -46,7 +46,6 @@
 #include <suspend/autosuspend.h>
 #endif
 
-#include "AnimationParser.h"
 #include "healthd_draw.h"
 
 #include <health2/Health.h>
@@ -78,9 +77,6 @@ char* locale;
 #define LOGE(x...) KLOG_ERROR("charger", x);
 #define LOGW(x...) KLOG_WARNING("charger", x);
 #define LOGV(x...) KLOG_DEBUG("charger", x);
-
-static constexpr const char* animation_desc_path =
-    "/res/values/charger/animation.txt";
 
 struct key_state {
     bool pending;
@@ -582,44 +578,18 @@ static void charger_event_handler(uint32_t /*epevents*/) {
 }
 
 animation* init_animation() {
-    bool parse_success;
+    /*
+     * SPRD charger uses an internal animation timeline.
+     *
+     * Frames no longer contain bitmap surfaces. They only define
+     * display timing and battery-level progression. The UI itself is
+     * drawn dynamically from the framebuffer dimensions.
+     */
+    battery_animation = BASE_ANIMATION;
+    battery_animation.frames = default_animation_frames;
+    battery_animation.num_frames = ARRAY_SIZE(default_animation_frames);
 
-    std::string content;
-    if (base::ReadFileToString(animation_desc_path, &content)) {
-        parse_success = parse_animation_desc(content, &battery_animation);
-    } else {
-        LOGW("Could not open animation description at %s\n", animation_desc_path);
-        parse_success = false;
-    }
-
-    if (!parse_success) {
-        LOGW("Could not parse animation description. Using default animation.\n");
-        battery_animation = BASE_ANIMATION;
-        battery_animation.animation_file.assign("charger/battery_scale");
-        battery_animation.frames = default_animation_frames;
-        battery_animation.num_frames = ARRAY_SIZE(default_animation_frames);
-    }
-    if (battery_animation.fail_file.empty()) {
-        battery_animation.fail_file.assign("charger/battery_fail");
-    }
-
-    LOGV("Animation Description:\n");
-    LOGV("  animation: %d %d '%s' (%d)\n", battery_animation.num_cycles,
-         battery_animation.first_frame_repeats, battery_animation.animation_file.c_str(),
-         battery_animation.num_frames);
-    LOGV("  fail_file: '%s'\n", battery_animation.fail_file.c_str());
-    LOGV("  clock: %d %d %d %d %d %d '%s'\n", battery_animation.text_clock.pos_x,
-         battery_animation.text_clock.pos_y, battery_animation.text_clock.color_r,
-         battery_animation.text_clock.color_g, battery_animation.text_clock.color_b,
-         battery_animation.text_clock.color_a, battery_animation.text_clock.font_file.c_str());
-    LOGV("  percent: %d %d %d %d %d %d '%s'\n", battery_animation.text_percent.pos_x,
-         battery_animation.text_percent.pos_y, battery_animation.text_percent.color_r,
-         battery_animation.text_percent.color_g, battery_animation.text_percent.color_b,
-         battery_animation.text_percent.color_a, battery_animation.text_percent.font_file.c_str());
-    for (int i = 0; i < battery_animation.num_frames; i++) {
-        LOGV("  frame %.2d: %d %d %d\n", i, battery_animation.frames[i].disp_time,
-             battery_animation.frames[i].min_level, battery_animation.frames[i].max_level);
-    }
+    LOGV("SPRD charger: using built-in vector animation\n");
 
     return &battery_animation;
 }
@@ -629,7 +599,6 @@ void healthd_mode_charger_init(struct healthd_config* config) {
 
     int ret;
     charger* charger = &charger_state;
-    int i;
     int epollfd;
 
     dump_last_kmsg();
@@ -645,36 +614,13 @@ void healthd_mode_charger_init(struct healthd_config* config) {
     animation* anim = init_animation();
     charger->batt_anim = anim;
 
-    ret = res_create_display_surface(anim->fail_file.c_str(), &charger->surf_unknown);
-    if (ret < 0) {
-        LOGE("Cannot load custom battery_fail image. Reverting to built in: %d\n", ret);
-        ret = res_create_display_surface("charger/battery_fail", &charger->surf_unknown);
-        if (ret < 0) {
-            LOGE("Cannot load built in battery_fail image\n");
-            charger->surf_unknown = NULL;
-        }
-    }
+    /*
+     * Vector SPRD charger does not require battery_scale.png or
+     * battery_fail.png. Unknown battery state falls back to the
+     * built-in text path in HealthdDraw.
+     */
+    charger->surf_unknown = nullptr;
 
-    GRSurface** scale_frames;
-    int scale_count;
-    int scale_fps;  // Not in use (charger/battery_scale doesn't have FPS text
-                    // chunk). We are using hard-coded frame.disp_time instead.
-    ret = res_create_multi_display_surface(anim->animation_file.c_str(), &scale_count, &scale_fps,
-                                           &scale_frames);
-    if (ret < 0) {
-        LOGE("Cannot load battery_scale image\n");
-        anim->num_frames = 0;
-        anim->num_cycles = 1;
-    } else if (scale_count != anim->num_frames) {
-        LOGE("battery_scale image has unexpected frame count (%d, expected %d)\n", scale_count,
-             anim->num_frames);
-        anim->num_frames = 0;
-        anim->num_cycles = 1;
-    } else {
-        for (i = 0; i < anim->num_frames; i++) {
-            anim->frames[i].surface = scale_frames[i];
-        }
-    }
     ev_sync_key_state(
         std::bind(&set_key_callback, charger, std::placeholders::_1, std::placeholders::_2));
 

@@ -40,7 +40,6 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_SRC_FILES := \
     charger/charger.cpp \
     charger/healthd_mode_charger.cpp \
-    charger/AnimationParser.cpp \
     charger/healthd_draw.cpp
 
 LOCAL_FORCE_STATIC_EXECUTABLE := true
